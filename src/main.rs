@@ -2,22 +2,11 @@ use hecs::{With, World};
 use macroquad::prelude::*;
 mod chain_builders;
 
-trait DrawableNode {
-    fn render(&self) -> ();
-}
-
-struct Node {
-    x_pos: f32,
-    y_pos: f32,
-    radius: f32,
-    color: Color,
-}
-
 struct Mass {
     mass: f32,
 }
 
- struct Position {
+struct Position {
     x: f32,
     y: f32,
 }
