@@ -3,21 +3,21 @@ use macroquad::color::{Color, RED};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
 
-struct Mass {
-    mass: f32,
+pub struct Mass {
+    pub(crate) mass: f32,
 }
 
-struct Position {
-    x: f32,
-    y: f32,
+pub struct Position {
+    pub(crate) x: f32,
+    pub(crate) y: f32,
 }
 
-struct Size {
-    radius: f32,
+pub struct Size {
+    pub(crate) radius: f32,
 }
 
-struct NodeColor {
-    color: Color,
+pub struct NodeColor {
+    pub(crate) color: Color,
 }
 
 pub fn render(world: &mut World) {

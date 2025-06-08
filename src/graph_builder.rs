@@ -16,10 +16,15 @@ struct Country {
 }
 
 #[derive(Debug, Deserialize)]
-struct CountryNode {
+pub struct CountryNode {
     name: String,
     first_letter: char,
     last_letter: char,
+    children: Vec<CountryNode>,
+}
+
+pub(crate) struct Graph {
+    pub(crate) nodes: Vec<CountryNode>,
 }
 
 pub fn country_chain_finder() {
@@ -49,6 +54,7 @@ pub fn country_chain_finder() {
             name: country.name,
             first_letter,
             last_letter,
+            children: Vec::new(),
         });
 
         // starting_candidates.clo
@@ -58,5 +64,16 @@ pub fn country_chain_finder() {
         println!("Starting candidate {:?}", starting_candidate.name);
 
         println!("{:?}", starting_candidate);
+    }
+}
+
+pub fn build_graph() -> Graph {
+    Graph {
+        nodes: Vec::from([CountryNode {
+            name: "Test Node".parse().unwrap(),
+            first_letter: "T".parse().unwrap(),
+            last_letter: "e".parse().unwrap(),
+            children: Vec::new(),
+        }]),
     }
 }
