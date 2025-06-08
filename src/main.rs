@@ -1,3 +1,4 @@
+use hecs::{With, World};
 use macroquad::prelude::*;
 mod chain_builders;
 
@@ -12,19 +13,21 @@ struct Node {
     color: Color,
 }
 
-impl DrawableNode for Node {
-    fn render(&self) {
-        draw_circle(self.x_pos, self.y_pos, self.radius, self.color);
-    }
+struct Mass {
+    mass: f32,
 }
 
-#[macroquad::main(window_conf)]
-async fn main() {
-    loop {
-        physics_update();
-        render();
-        next_frame().await
-    }
+ struct Position {
+    x: f32,
+    y: f32,
+}
+
+struct Size {
+    radius: f32,
+}
+
+struct NodeColor {
+    color: Color,
 }
 
 fn window_conf() -> Conf {
@@ -37,39 +40,29 @@ fn window_conf() -> Conf {
     }
 }
 
-fn render() {
+fn render(world: &mut World) {
     clear_background(RED);
 
-    let node = Node {
-        x_pos: screen_width() / 2f32,
-        y_pos: screen_height() / 2f32,
-        radius: 15.0,
-        color: WHITE,
-    };
-    let node1 = Node {
-        x_pos: screen_width() / 2f32 + 45f32,
-        y_pos: screen_height() / 2f32 + 45f32,
-        radius: 15.0,
-        color: WHITE,
-    };
+    for (_id, (position, size, color)) in
+        &mut world.query::<With<(&mut Position, &Size, &NodeColor), &Mass>>()
+    {
+        draw_circle(position.x, position.y, size.radius, color.color);
+    }
 
-    node.render();
-    node1.render();
-
-    draw_arrow_line(
-        Vec2 {
-            x: node.x_pos,
-            y: node.y_pos,
-        },
-        Vec2 {
-            x: node1.x_pos,
-            y: node1.y_pos,
-        },
-        node.radius,
-        node1.radius,
-        WHITE,
-        3.0,
-    );
+    // draw_arrow_line(
+    //     Vec2 {
+    //         x: node.x_pos,
+    //         y: node.y_pos,
+    //     },
+    //     Vec2 {
+    //         x: node1.x_pos,
+    //         y: node1.y_pos,
+    //     },
+    //     node.radius,
+    //     node1.radius,
+    //     WHITE,
+    //     3.0,
+    // );
 }
 
 fn draw_arrow_line(
@@ -161,7 +154,27 @@ fn render_arrow(
     );
 }
 
-fn physics_update() {}
+fn physics_update(world: World) {}
+
+#[macroquad::main(window_conf)]
+async fn main() {
+    let mut world = World::new();
+
+    let node = (
+        Mass { mass: 1.0 },
+        Position { x: 100.0, y: 100.0 },
+        Size { radius: 15.0 },
+        NodeColor { color: BLACK },
+    );
+
+    world.spawn(node);
+
+    loop {
+        render(&mut world);
+
+        next_frame().await
+    }
+}
 
 #[cfg(test)]
 mod tests {
