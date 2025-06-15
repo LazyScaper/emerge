@@ -23,7 +23,7 @@ pub struct Force {
     pub(crate) y: f32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Position {
     pub(crate) x: f32,
     pub(crate) y: f32,
@@ -47,15 +47,20 @@ struct Country {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct CountryNode {
+pub struct NodeId {
     pub(crate) id: usize,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CountryNode {
+    pub(crate) id: NodeId,
     pub(crate) country_data: CountryData,
     pub(crate) physics_data: PhysicsData,
     pub(crate) outgoing_edges: HashSet<usize>,
     pub(crate) incoming_edges: HashSet<usize>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Edge {
     pub(crate) source_node_id: usize,
     pub(crate) destination_node_id: usize,
@@ -113,7 +118,7 @@ impl Graph {
 
         self.node_lookup.insert(name, id);
         self.nodes.push(CountryNode {
-            id,
+            id: NodeId { id },
             country_data: node_data,
             physics_data: PhysicsData::init(),
             outgoing_edges: HashSet::new(),
@@ -148,7 +153,7 @@ impl Graph {
         for source_node in self.nodes.iter() {
             for &destination_node_id in &source_node.outgoing_edges {
                 edges.push(Edge {
-                    source_node_id: source_node.id,
+                    source_node_id: source_node.id.id,
                     destination_node_id,
                 });
             }

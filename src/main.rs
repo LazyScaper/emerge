@@ -1,6 +1,9 @@
 use crate::graph_renderer::render;
 use hecs::World;
 use macroquad::prelude::*;
+use std::collections::HashMap;
+use std::fmt::Debug;
+use std::hash::Hash;
 
 mod graph_builder;
 mod graph_renderer;
@@ -8,7 +11,8 @@ use crate::graph_builder::*;
 use random::prelude::*;
 
 const TIME_STEP: f32 = 0.1f32;
-const SPRING_CONSTANT: f32 = 0.1f32;
+const SPRING_CONSTANT: f32 = 0.5f32;
+const SPRING_RESTING_LENGTH: f32 = 100f32;
 
 fn window_conf() -> Conf {
     Conf {
@@ -21,13 +25,60 @@ fn window_conf() -> Conf {
 }
 
 fn physics_update(world: &mut World) {
-    for (id, (velocity, force, mass)) in world.query_mut::<(&mut Velocity, &mut Force, &Mass)>() {
-        // todo!()
+    let node_data: HashMap<usize, Position> = world
+        .query::<(&Position, &NodeId)>()
+        .iter()
+        .map(|(e, (pos, node_id))| (node_id.id, pos.clone()))
+        .collect();
+
+    let edge_data: HashMap<usize, Edge> = world
+        .query::<(&Edge)>()
+        .iter()
+        .map(|(e, edge)| (edge.source_node_id, edge.clone()))
+        .collect();
+ 
+    for (_, edge) in edge_data {
+        let edge_source_node_id = edge.source_node_id;
+        let edge_destination_node_id = edge.destination_node_id;
+
+        if node_data.contains_key(&edge_source_node_id)
+            && node_data.contains_key(&edge_destination_node_id)
+        {
+            if let Some(source_node_position) = node_data.get(&edge_source_node_id) {
+                if let Some(destination_node_position) = node_data.get(&edge_destination_node_id) {
+                    if let Some((_found_node, (mut force, node_id))) = world
+                        .query::<(&mut Force, &NodeId)>()
+                        .iter()
+                        .find(|(entity, (force, node_id))| edge_source_node_id == node_id.id)
+                    {
+                        force.x = -SPRING_CONSTANT
+                            * (source_node_position.x - destination_node_position.x);
+                        force.y = -SPRING_CONSTANT
+                            * (source_node_position.y - destination_node_position.y);
+                    }
+
+                    if let Some((_found_node, (mut force, node_id))) = world
+                        .query::<(&mut Force, &NodeId)>()
+                        .iter()
+                        .find(|(entity, (force, node_id))| edge_destination_node_id == node_id.id)
+                    {
+                        let dx = destination_node_position.x - source_node_position.x;
+                        let dy = destination_node_position.y - source_node_position.y;
+
+                        let current_length = (dx * dx + dy * dy).sqrt();
+                        let displacement_from_rest = current_length - SPRING_RESTING_LENGTH;
+
+                        force.x = -SPRING_CONSTANT * displacement_from_rest * (dx / current_length);
+                        force.y = -SPRING_CONSTANT * displacement_from_rest * (dy / current_length);
+                    }
+                }
+            }
+        };
     }
 }
 
 fn simulate_time_step(world: &mut World) {
-    for (id, (position, velocity, force, mass)) in
+    for (_id, (position, velocity, force, mass)) in
         world.query_mut::<(&mut Position, &mut Velocity, &mut Force, &Mass)>()
     {
         position.x += velocity.x * TIME_STEP + 0.5 * force.x * TIME_STEP.powi(2);
@@ -63,9 +114,8 @@ async fn main() {
         render(&mut world);
 
         // physics calc, update forces
-        physics_update(&mut world);
-
         // plug into equations of motion to calc velocity
+        physics_update(&mut world);
 
         // simulate small time step, update positions
         simulate_time_step(&mut world);
