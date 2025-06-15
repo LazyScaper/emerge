@@ -40,18 +40,23 @@ async fn main() {
     let mut world = World::new();
     let graph = build_graph();
 
+    let all_edges = graph.get_all_edges();
     for node in graph.nodes {
         let renderable_node = (
+            node.id,
             node.physics_data.velocity,
             node.physics_data.force,
             node.physics_data.mass,
             node.physics_data.position,
             node.physics_data.size,
-            node.incoming_edges,
             BLACK,
         );
 
         world.spawn(renderable_node);
+    }
+
+    for edge in all_edges {
+        world.spawn((edge,));
     }
 
     loop {

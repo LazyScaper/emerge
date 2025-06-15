@@ -56,6 +56,12 @@ pub struct CountryNode {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Edge {
+    pub(crate) source_node_id: usize,
+    pub(crate) destination_node_id: usize,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct CountryData {
     name: String,
     first_letter: char,
@@ -134,6 +140,21 @@ impl Graph {
         ) {
             self.add_edge(from_id, to_id);
         }
+    }
+
+    pub fn get_all_edges(&self) -> Vec<Edge> {
+        let mut edges = Vec::new();
+
+        for source_node in self.nodes.iter() {
+            for &destination_node_id in &source_node.outgoing_edges {
+                edges.push(Edge {
+                    source_node_id: source_node.id,
+                    destination_node_id,
+                });
+            }
+        }
+
+        edges
     }
 }
 
