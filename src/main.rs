@@ -7,6 +7,8 @@ mod graph_renderer;
 use crate::graph_builder::*;
 use random::prelude::*;
 
+const TIME_STEP: f32 = 0.1f32;
+
 fn window_conf() -> Conf {
     Conf {
         window_title: "Circle Resizing Examples".to_owned(),
@@ -19,7 +21,16 @@ fn window_conf() -> Conf {
 
 fn physics_update(world: &mut World) {
     for (id, (velocity, force, mass)) in world.query_mut::<(&mut Velocity, &mut Force, &Mass)>() {
-        
+        // todo!()
+    }
+}
+
+fn simulate_time_step(world: &mut World) {
+    for (id, (position, velocity, force, mass)) in
+        world.query_mut::<(&mut Position, &mut Velocity, &mut Force, &Mass)>()
+    {
+        position.x += velocity.x * TIME_STEP + 0.5 * force.x * TIME_STEP.powi(2);
+        position.y += velocity.y * TIME_STEP + 0.5 * force.y * TIME_STEP.powi(2);
     }
 }
 
@@ -35,7 +46,7 @@ async fn main() {
             node.physics_data.mass,
             node.physics_data.position,
             node.physics_data.size,
-            BLACK
+            BLACK,
         );
 
         world.spawn(renderable_node);
@@ -47,8 +58,10 @@ async fn main() {
         physics_update(&mut world);
 
         // plug into equations of motion to calc velocity
-        
+
         // simulate small time step, update positions
+        simulate_time_step(&mut world);
+
         next_frame().await
     }
 }
