@@ -8,6 +8,7 @@ use crate::graph_builder::*;
 use random::prelude::*;
 
 const TIME_STEP: f32 = 0.1f32;
+const SPRING_CONSTANT: f32 = 0.1f32;
 
 fn window_conf() -> Conf {
     Conf {
@@ -46,6 +47,7 @@ async fn main() {
             node.physics_data.mass,
             node.physics_data.position,
             node.physics_data.size,
+            node.incoming_edges,
             BLACK,
         );
 
@@ -54,6 +56,7 @@ async fn main() {
 
     loop {
         render(&mut world);
+
         // physics calc, update forces
         physics_update(&mut world);
 

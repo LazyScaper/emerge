@@ -48,11 +48,11 @@ struct Country {
 
 #[derive(Debug, Deserialize)]
 pub struct CountryNode {
-    id: usize,
-    country_data: CountryData,
+    pub(crate) id: usize,
+    pub(crate) country_data: CountryData,
     pub(crate) physics_data: PhysicsData,
-    outgoing_edges: HashSet<usize>,
-    incoming_edges: HashSet<usize>,
+    pub(crate) outgoing_edges: HashSet<usize>,
+    pub(crate) incoming_edges: HashSet<usize>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -80,14 +80,14 @@ pub(crate) struct Graph {
 impl PhysicsData {
     pub fn init() -> Self {
         let mut rng = random::rng();
-        
+
         Self {
             mass: Mass { mass: 0.0 },
             velocity: Velocity { x: 0.0, y: 0.0 },
             force: Force { x: 0.0, y: 0.0 },
-            position: Position { 
+            position: Position {
                 x: rng.random_range(0.0..screen_width()),
-                y: rng.random_range(0.0..screen_height()) 
+                y: rng.random_range(0.0..screen_height()),
             },
             size: Size { radius: 15.0 },
         }
