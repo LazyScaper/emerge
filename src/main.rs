@@ -1,10 +1,10 @@
-use crate::graph_builder::build_graph;
-use crate::graph_renderer::{render, Mass, NodeColor, Position, Size};
+use crate::graph_renderer::render;
 use hecs::World;
 use macroquad::prelude::*;
 
 mod graph_builder;
 mod graph_renderer;
+use crate::graph_builder::*;
 use random::prelude::*;
 
 fn window_conf() -> Conf {
@@ -17,23 +17,25 @@ fn window_conf() -> Conf {
     }
 }
 
-fn physics_update(world: World) {}
+fn physics_update(world: &mut World) {
+    for (id, (velocity, force, mass)) in world.query_mut::<(&mut Velocity, &mut Force, &Mass)>() {
+        
+    }
+}
 
 #[macroquad::main(window_conf)]
 async fn main() {
     let mut world = World::new();
     let graph = build_graph();
-    let mut rng = random::rng();
 
-    for _node in graph.nodes {
+    for node in graph.nodes {
         let renderable_node = (
-            Mass { mass: 1.0 },
-            Position {
-                x: rng.random_range(0.0..screen_width()),
-                y: rng.random_range(0.0..screen_height()),
-            },
-            Size { radius: 15.0 },
-            NodeColor { color: BLACK },
+            node.physics_data.velocity,
+            node.physics_data.force,
+            node.physics_data.mass,
+            node.physics_data.position,
+            node.physics_data.size,
+            BLACK
         );
 
         world.spawn(renderable_node);
@@ -41,7 +43,12 @@ async fn main() {
 
     loop {
         render(&mut world);
+        // physics calc, update forces
+        physics_update(&mut world);
 
+        // plug into equations of motion to calc velocity
+        
+        // simulate small time step, update positions
         next_frame().await
     }
 }

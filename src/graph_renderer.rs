@@ -1,32 +1,16 @@
+use crate::graph_builder::{Mass, Position, Size};
 use hecs::{With, World};
-use macroquad::color::{Color, RED};
+use macroquad::color::{Color, BLACK, RED};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
-
-pub struct Mass {
-    pub(crate) mass: f32,
-}
-
-pub struct Position {
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-}
-
-pub struct Size {
-    pub(crate) radius: f32,
-}
-
-pub struct NodeColor {
-    pub(crate) color: Color,
-}
 
 pub fn render(world: &mut World) {
     clear_background(RED);
 
-    for (_id, (position, size, color)) in
-        &mut world.query::<With<(&mut Position, &Size, &NodeColor), &Mass>>()
+    for (_id, (position, size)) in
+        &mut world.query::<With<(&mut Position, &Size), &Mass>>()
     {
-        draw_circle(position.x, position.y, size.radius, color.color);
+        draw_circle(position.x, position.y, size.radius, BLACK);
     }
 
     // draw_arrow_line(
