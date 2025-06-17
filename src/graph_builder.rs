@@ -221,7 +221,25 @@ pub fn build_graph() -> Graph {
             first_letter: 'a',
         },
     );
+    graph.add_node(
+        "Cameroon".to_string(),
+        CountryData {
+            name: "Cameroon".to_string(),
+            last_letter: 'c',
+            first_letter: 'n',
+        },
+    );
+    graph.add_node(
+        "Nigeria".to_string(),
+        CountryData {
+            name: "Nigeria".to_string(),
+            last_letter: 'n',
+            first_letter: 'a',
+        },
+    );
     graph.add_edge_by_name("Cambodia", "Albania");
+    graph.add_edge_by_name("Cameroon", "Nigeria");
+    graph.add_edge_by_name("Nigeria", "Albania");
 
     graph
 }

@@ -1,8 +1,9 @@
-use crate::graph_builder::{Mass, Position, Size};
+use crate::graph_builder::{Edge, Mass, NodeId, Position, Size};
 use hecs::{With, World};
-use macroquad::color::{Color, BLACK, RED};
+use macroquad::color::{Color, BLACK, RED, WHITE};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
+use std::collections::HashMap;
 
 pub fn render(world: &mut World) {
     clear_background(RED);
@@ -13,20 +14,46 @@ pub fn render(world: &mut World) {
         draw_circle(position.x, position.y, size.radius, BLACK);
     }
 
-    // draw_arrow_line(
-    //     Vec2 {
-    //         x: node.x_pos,
-    //         y: node.y_pos,
-    //     },
-    //     Vec2 {
-    //         x: node1.x_pos,
-    //         y: node1.y_pos,
-    //     },
-    //     node.radius,
-    //     node1.radius,
-    //     WHITE,
-    //     3.0,
-    // );
+    let node_data: HashMap<usize, Position> = world
+        .query::<(&Position, &NodeId)>()
+        .iter()
+        .map(|(e, (pos, node_id))| (node_id.id, pos.clone()))
+        .collect();
+
+    let edge_data: HashMap<usize, Edge> = world
+        .query::<(&Edge)>()
+        .iter()
+        .map(|(e, edge)| (edge.source_node_id, edge.clone()))
+        .collect();
+
+    for (_, edge) in edge_data {
+        let edge_source_node_id = edge.source_node_id;
+        let edge_destination_node_id = edge.destination_node_id;
+
+        if node_data.contains_key(&edge_source_node_id)
+            && node_data.contains_key(&edge_destination_node_id)
+        {
+            if let Some(source_node_position) = node_data.get(&edge_source_node_id) {
+                if let Some(destination_node_position) = node_data.get(&edge_destination_node_id) {
+                    draw_arrow_line(
+                        Vec2 {
+                            x: source_node_position.x,
+                            y: source_node_position.y,
+                        },
+                        Vec2 {
+                            x: destination_node_position.x,
+                            y: destination_node_position.y,
+                        },
+                        15.0,
+                        15.0,
+                        WHITE,
+                        3.0,
+                    )
+                }
+            }
+        };
+    }
+    ;
 }
 fn render_arrow(
     color: Color,
