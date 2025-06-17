@@ -44,8 +44,11 @@ fn physics_update(world: &mut World) {
         if node_data.contains_key(&edge_source_node_id)
             && node_data.contains_key(&edge_destination_node_id)
         {
-            if let Some(source_node_position) = node_data.get(&edge_source_node_id) {
-                if let Some(destination_node_position) = node_data.get(&edge_destination_node_id) {
+            match (
+                node_data.get(&edge_source_node_id),
+                node_data.get(&edge_destination_node_id),
+            ) {
+                (Some(source_node_position), Some(destination_node_position)) => {
                     if let Some((_found_node, (mut force, node_id))) = world
                         .query::<(&mut Force, &NodeId)>()
                         .iter()
@@ -76,6 +79,7 @@ fn physics_update(world: &mut World) {
                         force.y = -SPRING_CONSTANT * displacement_from_rest * (dy / current_length);
                     }
                 }
+                _ => {}
             }
         };
     }
