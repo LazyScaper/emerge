@@ -10,7 +10,7 @@ mod graph_renderer;
 use crate::graph_builder::*;
 use random::prelude::*;
 
-const TIME_STEP: f32 = 0.1f32;
+const TIME_STEP: f32 = 0.5f32;
 const SPRING_CONSTANT: f32 = 0.5f32;
 const SPRING_RESTING_LENGTH: f32 = 100f32;
 
@@ -36,7 +36,7 @@ fn physics_update(world: &mut World) {
         .iter()
         .map(|(e, edge)| (edge.source_node_id, edge.clone()))
         .collect();
- 
+
     for (_, edge) in edge_data {
         let edge_source_node_id = edge.source_node_id;
         let edge_destination_node_id = edge.destination_node_id;
@@ -51,10 +51,14 @@ fn physics_update(world: &mut World) {
                         .iter()
                         .find(|(entity, (force, node_id))| edge_source_node_id == node_id.id)
                     {
-                        force.x = -SPRING_CONSTANT
-                            * (source_node_position.x - destination_node_position.x);
-                        force.y = -SPRING_CONSTANT
-                            * (source_node_position.y - destination_node_position.y);
+                        let dx = source_node_position.x - destination_node_position.x;
+                        let dy = source_node_position.y - destination_node_position.y;
+
+                        let current_length = (dx * dx + dy * dy).sqrt();
+                        let displacement_from_rest = current_length - SPRING_RESTING_LENGTH;
+
+                        force.x = -SPRING_CONSTANT * displacement_from_rest * (dx / current_length);
+                        force.y = -SPRING_CONSTANT * displacement_from_rest * (dy / current_length);
                     }
 
                     if let Some((_found_node, (mut force, node_id))) = world
