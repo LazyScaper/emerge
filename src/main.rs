@@ -16,7 +16,7 @@ const SPRING_RESTING_LENGTH: f32 = 100f32;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Circle Resizing Examples".to_owned(),
+        window_title: "Force Directed Graph Renderer".to_owned(),
         window_width: 1280,
         window_height: 720,
         window_resizable: false,
