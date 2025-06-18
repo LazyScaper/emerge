@@ -8,9 +8,7 @@ use std::collections::HashMap;
 pub fn render(world: &mut World) {
     clear_background(RED);
 
-    for (_id, (position, size)) in
-        &mut world.query::<With<(&mut Position, &Size), &Mass>>()
-    {
+    for (_id, (position, size)) in &mut world.query::<With<(&mut Position, &Size), &Mass>>() {
         draw_circle(position.x, position.y, size.radius, BLACK);
     }
 
@@ -53,7 +51,6 @@ pub fn render(world: &mut World) {
             }
         };
     }
-    ;
 }
 fn render_arrow(
     color: Color,
