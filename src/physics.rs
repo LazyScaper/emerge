@@ -1,4 +1,4 @@
-use crate::graph_builder::*;
+use crate::builder::*;
 use hecs::World;
 use std::collections::HashMap;
 

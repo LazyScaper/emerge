@@ -1,14 +1,15 @@
-use crate::graph_renderer::render;
+use crate::renderer::render;
 use hecs::World;
 use macroquad::prelude::*;
 use std::fmt::Debug;
 use std::hash::Hash;
 
-mod graph_builder;
-mod graph_renderer;
+mod builder;
+mod graph;
 mod physics;
+mod renderer;
 
-use crate::graph_builder::*;
+use crate::graph::build_graph;
 use crate::physics::{physics_update, simulate_time_step};
 use random::prelude::*;
 

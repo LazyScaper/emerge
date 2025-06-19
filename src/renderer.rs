@@ -1,4 +1,4 @@
-use crate::graph_builder::{CountryData, Edge, Mass, NodeId, Position, Size};
+use crate::builder::{CountryData, Edge, Mass, NodeId, Position, Size};
 use hecs::{With, World};
 use macroquad::color::{Color, BLACK, RED, WHITE};
 use macroquad::math::Vec2;
