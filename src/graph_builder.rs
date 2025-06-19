@@ -68,7 +68,7 @@ pub struct Edge {
 
 #[derive(Debug, Deserialize)]
 pub struct CountryData {
-    name: String,
+    pub(crate) name: String,
     first_letter: char,
     last_letter: char,
 }

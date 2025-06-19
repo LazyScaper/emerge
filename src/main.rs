@@ -14,7 +14,7 @@ use random::prelude::*;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Force Directed Graph Renderer".to_owned(),
+        window_title: "Emerge - Graph".to_owned(),
         window_width: 1280,
         window_height: 720,
         window_resizable: false,
@@ -36,6 +36,7 @@ async fn main() {
             node.physics_data.mass,
             node.physics_data.position,
             node.physics_data.size,
+            node.country_data,
             BLACK,
         );
 

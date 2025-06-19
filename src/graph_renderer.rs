@@ -1,15 +1,27 @@
-use crate::graph_builder::{Edge, Mass, NodeId, Position, Size};
+use crate::graph_builder::{CountryData, Edge, Mass, NodeId, Position, Size};
 use hecs::{With, World};
 use macroquad::color::{Color, BLACK, RED, WHITE};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
+use macroquad::text::{draw_text, get_text_center};
 use std::collections::HashMap;
 
 pub fn render(world: &mut World) {
     clear_background(RED);
 
-    for (_id, (position, size)) in &mut world.query::<With<(&mut Position, &Size), &Mass>>() {
+    for (_id, (position, size, country_data)) in
+        &mut world.query::<With<(&mut Position, &Size, &CountryData), &Mass>>()
+    {
         draw_circle(position.x, position.y, size.radius, BLACK);
+        let label = &country_data.name;
+        let center_of_text = get_text_center(label, Option::None, 20, 1.0, 0.0);
+        draw_text(
+            label,
+            position.x - center_of_text.x,
+            position.y - center_of_text.y / 2.0,
+            20.0,
+            WHITE,
+        );
     }
 
     let node_data: HashMap<usize, Position> = world
