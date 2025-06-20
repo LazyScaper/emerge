@@ -1,10 +1,15 @@
 use crate::builder::{CountryData, Edge, Node, NodeId, PhysicsData};
+use crate::physics::{physics_update, simulate_time_step};
+use crate::renderer::render;
+use hecs::World;
+use macroquad::color::BLACK;
+use macroquad::prelude::next_frame;
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Deserialize)]
-pub(crate) struct Graph {
-    pub(crate) nodes: Vec<Node>,
+pub struct Graph {
+    pub nodes: Vec<Node>,
     pub(crate) node_lookup: HashMap<String, usize>,
 }
 
@@ -106,4 +111,39 @@ pub fn build_graph() -> Graph {
     graph.add_edge_by_name("Nigeria", "Albania");
 
     graph
+}
+
+pub async fn render_graph(mut world: &mut World, graph: Graph) {
+    let all_edges = graph.get_all_edges();
+    for node in graph.nodes {
+        let renderable_node = (
+            node.id,
+            node.physics_data.velocity,
+            node.physics_data.force,
+            node.physics_data.mass,
+            node.physics_data.position,
+            node.physics_data.size,
+            node.country_data,
+            BLACK,
+        );
+
+        world.spawn(renderable_node);
+    }
+
+    for edge in all_edges {
+        world.spawn((edge,));
+    }
+
+    loop {
+        render(&mut world);
+
+        // physics calc, update forces
+        // plug into equations of motion to calc velocity
+        physics_update(&mut world);
+
+        // simulate small time step, update positions
+        simulate_time_step(&mut world);
+
+        next_frame().await
+    }
 }
