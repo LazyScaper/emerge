@@ -84,10 +84,10 @@ impl Graph {
         }
     }
 
-    pub fn add_node(&mut self, name: String, label: String) {
+    pub fn add_node(&mut self, label: String) {
         let id = self.nodes.len();
 
-        self.node_lookup.insert(name, id);
+        self.node_lookup.insert(label.clone(), id);
         self.nodes.push(Node {
             id,
             label,
