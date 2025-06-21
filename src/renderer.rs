@@ -1,18 +1,18 @@
 use crate::graph::{Edge, Position, Size};
 use hecs::World;
-use macroquad::color::{Color, BLACK, RED, WHITE};
+use macroquad::color::{Color, BLACK, GRAY, WHITE};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
 use macroquad::text::{draw_text, get_text_center};
 use std::collections::HashMap;
 
 pub fn render(world: &mut World) {
-    clear_background(RED);
+    clear_background(GRAY);
 
     for (_id, (position, size, label)) in &mut world.query::<(&mut Position, &Size, &String)>() {
         draw_circle(position.x, position.y, size.radius, BLACK);
         let label = &label;
-        let center_of_text = get_text_center(label, Option::None, 20, 1.0, 0.0);
+        let center_of_text = get_text_center(label, None, 20, 1.0, 0.0);
         draw_text(
             label,
             position.x - center_of_text.x,
