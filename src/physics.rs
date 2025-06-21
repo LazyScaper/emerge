@@ -1,4 +1,4 @@
-use crate::graph::{Edge, Force, Mass, Position, Velocity};
+use crate::graph::{Edge, Force, Position, Velocity};
 use hecs::World;
 use std::collections::HashMap;
 
@@ -90,8 +90,8 @@ fn calculate_forces_between_nodes(
 }
 
 pub fn simulate_time_step(world: &mut World) {
-    for (_id, (position, velocity, force, mass)) in
-        world.query_mut::<(&mut Position, &mut Velocity, &mut Force, &Mass)>()
+    for (_id, (position, velocity, force)) in
+        world.query_mut::<(&mut Position, &mut Velocity, &mut Force)>()
     {
         position.x += velocity.x * TIME_STEP + 0.5 * force.x * TIME_STEP.powi(2);
         position.y += velocity.y * TIME_STEP + 0.5 * force.y * TIME_STEP.powi(2);

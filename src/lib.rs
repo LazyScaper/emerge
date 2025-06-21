@@ -1,3 +1,3 @@
 pub mod graph;
-pub mod physics;
-pub mod renderer;
+mod physics;
+mod renderer;

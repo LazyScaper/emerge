@@ -8,11 +8,6 @@ use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Deserialize)]
-pub struct Mass {
-    pub(crate) mass: f32,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct Velocity {
     pub(crate) x: f32,
     pub(crate) y: f32,
@@ -52,7 +47,6 @@ pub struct Edge {
 
 #[derive(Debug, Deserialize)]
 pub struct PhysicsData {
-    pub(crate) mass: Mass,
     pub(crate) velocity: Velocity,
     pub(crate) force: Force,
     pub(crate) position: Position,
@@ -64,7 +58,6 @@ impl PhysicsData {
         let mut rng = random::rng();
 
         Self {
-            mass: Mass { mass: 0.0 },
             velocity: Velocity { x: 0.0, y: 0.0 },
             force: Force { x: 0.0, y: 0.0 },
             position: Position {
@@ -149,7 +142,6 @@ pub async fn render_graph(graph: Graph) {
             node.id,
             node.physics_data.velocity,
             node.physics_data.force,
-            node.physics_data.mass,
             node.physics_data.position,
             node.physics_data.size,
             node.label,
