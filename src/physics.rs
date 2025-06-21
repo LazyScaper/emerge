@@ -56,6 +56,8 @@ pub fn physics_update(world: &mut World) {
             }
         };
     }
+
+    simulate_time_step(world);
 }
 
 fn apply_force_to_node(world: &mut World, node_id_to_match: usize, nodes: Force) {
@@ -89,7 +91,7 @@ fn calculate_spring_forces_between_nodes(
     }
 }
 
-pub fn simulate_time_step(world: &mut World) {
+fn simulate_time_step(world: &mut World) {
     for (_id, (position, velocity, force)) in
         world.query_mut::<(&mut Position, &mut Velocity, &mut Force)>()
     {

@@ -1,4 +1,4 @@
-use crate::physics::{physics_update, simulate_time_step};
+use crate::physics::physics_update;
 use crate::renderer::render;
 use hecs::World;
 use macroquad::color::BLACK;
@@ -172,9 +172,6 @@ pub async fn render_graph(graph: Graph) {
         // physics calc, update forces
         // plug into equations of motion to calc velocity
         physics_update(&mut world);
-
-        // simulate small time step, update positions
-        simulate_time_step(&mut world);
 
         next_frame().await
     }
