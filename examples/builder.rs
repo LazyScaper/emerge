@@ -17,9 +17,9 @@ struct Country {
 
 #[derive(Debug, Deserialize)]
 pub struct CountryData {
-    pub(crate) name: String,
-    pub(crate) first_letter: char,
-    pub(crate) last_letter: char,
+    name: String,
+    first_letter: char,
+    last_letter: char,
 }
 
 pub fn country_chain_finder() {
