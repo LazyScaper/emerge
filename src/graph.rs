@@ -2,6 +2,7 @@ use crate::physics::{physics_update, simulate_time_step};
 use crate::renderer::render;
 use hecs::World;
 use macroquad::color::BLACK;
+use macroquad::prelude::Conf;
 use macroquad::prelude::{next_frame, screen_height, screen_width};
 use random::Rng;
 use serde::Deserialize;
@@ -130,6 +131,16 @@ impl Graph {
         }
 
         edges
+    }
+}
+
+pub fn default_window_conf() -> Conf {
+    Conf {
+        window_title: "Emerge - Graph".to_owned(),
+        window_width: 1280,
+        window_height: 720,
+        window_resizable: false,
+        ..Default::default()
     }
 }
 
