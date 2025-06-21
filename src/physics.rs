@@ -1,4 +1,4 @@
-use crate::builder::*;
+use crate::graph::{Edge, Force, Mass, NodeId, Position, Velocity};
 use hecs::World;
 use std::collections::HashMap;
 

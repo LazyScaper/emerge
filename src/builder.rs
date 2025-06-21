@@ -1,38 +1,7 @@
 use csv::ReaderBuilder;
-use macroquad::prelude::{screen_height, screen_width};
-use random::Rng;
 use serde::Deserialize;
-use std::collections::HashSet;
 use std::fs::File;
 use std::path::Path;
-
-#[derive(Debug, Deserialize)]
-pub struct Mass {
-    pub(crate) mass: f32,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Velocity {
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Force {
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct Position {
-    pub(crate) x: f32,
-    pub(crate) y: f32,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Size {
-    pub(crate) radius: f32,
-}
 
 #[derive(Debug, Deserialize)]
 struct Country {
@@ -47,56 +16,10 @@ struct Country {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct NodeId {
-    pub(crate) id: usize,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Node {
-    pub(crate) id: NodeId,
-    pub(crate) country_data: CountryData,
-    pub(crate) physics_data: PhysicsData,
-    pub(crate) outgoing_edges: HashSet<usize>,
-    pub(crate) incoming_edges: HashSet<usize>,
-}
-
-#[derive(Debug, Deserialize, Clone)]
-pub struct Edge {
-    pub(crate) source_node_id: usize,
-    pub(crate) destination_node_id: usize,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct CountryData {
     pub(crate) name: String,
     pub(crate) first_letter: char,
     pub(crate) last_letter: char,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct PhysicsData {
-    pub(crate) mass: Mass,
-    pub(crate) velocity: Velocity,
-    pub(crate) force: Force,
-    pub(crate) position: Position,
-    pub(crate) size: Size,
-}
-
-impl PhysicsData {
-    pub fn init() -> Self {
-        let mut rng = random::rng();
-
-        Self {
-            mass: Mass { mass: 0.0 },
-            velocity: Velocity { x: 0.0, y: 0.0 },
-            force: Force { x: 0.0, y: 0.0 },
-            position: Position {
-                x: rng.random_range(0.0..screen_width()),
-                y: rng.random_range(0.0..screen_height()),
-            },
-            size: Size { radius: 15.0 },
-        }
-    }
 }
 
 pub fn country_chain_finder() {

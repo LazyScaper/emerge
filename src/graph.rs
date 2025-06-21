@@ -1,11 +1,85 @@
-use crate::builder::{CountryData, Edge, Node, NodeId, PhysicsData};
 use crate::physics::{physics_update, simulate_time_step};
 use crate::renderer::render;
 use hecs::World;
 use macroquad::color::BLACK;
-use macroquad::prelude::next_frame;
+use macroquad::prelude::{next_frame, screen_height, screen_width};
+use random::Rng;
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
+
+#[derive(Debug, Deserialize)]
+pub struct Mass {
+    pub(crate) mass: f32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Velocity {
+    pub(crate) x: f32,
+    pub(crate) y: f32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Force {
+    pub(crate) x: f32,
+    pub(crate) y: f32,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct Position {
+    pub(crate) x: f32,
+    pub(crate) y: f32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Size {
+    pub(crate) radius: f32,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct NodeId {
+    pub(crate) id: usize,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Node {
+    pub(crate) id: NodeId,
+    pub(crate) label: String,
+    pub(crate) physics_data: PhysicsData,
+    pub(crate) outgoing_edges: HashSet<usize>,
+    pub(crate) incoming_edges: HashSet<usize>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+pub struct Edge {
+    pub(crate) source_node_id: usize,
+    pub(crate) destination_node_id: usize,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PhysicsData {
+    pub(crate) mass: Mass,
+    pub(crate) velocity: Velocity,
+    pub(crate) force: Force,
+    pub(crate) position: Position,
+    pub(crate) size: Size,
+}
+
+impl PhysicsData {
+    pub fn init() -> Self {
+        let mut rng = random::rng();
+
+        Self {
+            mass: Mass { mass: 0.0 },
+            velocity: Velocity { x: 0.0, y: 0.0 },
+            force: Force { x: 0.0, y: 0.0 },
+            position: Position {
+                x: rng.random_range(0.0..screen_width()),
+                y: rng.random_range(0.0..screen_height()),
+            },
+            size: Size { radius: 15.0 },
+        }
+    }
+}
 
 #[derive(Debug, Deserialize)]
 pub struct Graph {
@@ -21,13 +95,13 @@ impl Graph {
         }
     }
 
-    pub fn add_node(&mut self, name: String, node_data: CountryData) {
+    pub fn add_node(&mut self, name: String, label: String) {
         let id = self.nodes.len();
 
         self.node_lookup.insert(name, id);
         self.nodes.push(Node {
             id: NodeId { id },
-            country_data: node_data,
+            label,
             physics_data: PhysicsData::init(),
             outgoing_edges: HashSet::new(),
             incoming_edges: HashSet::new(),
@@ -71,49 +145,9 @@ impl Graph {
     }
 }
 
-pub fn build_graph() -> Graph {
-    let mut graph = Graph::new();
+pub async fn render_graph(graph: Graph) {
+    let mut world = World::new();
 
-    graph.add_node(
-        "Albania".to_string(),
-        CountryData {
-            name: "Albania".to_string(),
-            last_letter: 'a',
-            first_letter: 'a',
-        },
-    );
-    graph.add_node(
-        "Cambodia".to_string(),
-        CountryData {
-            name: "Cambodia".to_string(),
-            last_letter: 'c',
-            first_letter: 'a',
-        },
-    );
-    graph.add_node(
-        "Cameroon".to_string(),
-        CountryData {
-            name: "Cameroon".to_string(),
-            last_letter: 'c',
-            first_letter: 'n',
-        },
-    );
-    graph.add_node(
-        "Nigeria".to_string(),
-        CountryData {
-            name: "Nigeria".to_string(),
-            last_letter: 'n',
-            first_letter: 'a',
-        },
-    );
-    graph.add_edge_by_name("Cambodia", "Albania");
-    graph.add_edge_by_name("Cameroon", "Nigeria");
-    graph.add_edge_by_name("Nigeria", "Albania");
-
-    graph
-}
-
-pub async fn render_graph(mut world: &mut World, graph: Graph) {
     let all_edges = graph.get_all_edges();
     for node in graph.nodes {
         let renderable_node = (
@@ -123,7 +157,7 @@ pub async fn render_graph(mut world: &mut World, graph: Graph) {
             node.physics_data.mass,
             node.physics_data.position,
             node.physics_data.size,
-            node.country_data,
+            node.label,
             BLACK,
         );
 
