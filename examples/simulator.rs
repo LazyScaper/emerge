@@ -17,30 +17,29 @@ impl Simulator {
     fn graph(&mut self) -> Graph {
         let mut rng = random::rng();
 
-        self.number_of_edges = rng.random_range(..100);
-        self.number_of_nodes = rng.random_range(..100);
+        self.number_of_edges = rng.random_range(1..20);
+        self.number_of_nodes = rng.random_range(1..20);
 
-        let graph = Graph::new();
+        let mut graph = Graph::new();
 
-        for _ in 0..self.number_of_nodes {
-            // graph.add_node("Node".to_string(), "Node".to_string());
+        for node_id in 0..self.number_of_nodes {
+            graph.add_node("node".to_string() + node_id.to_string().as_str());
         }
+
+        for _ in 0..self.number_of_edges {
+            graph.add_edge(
+                rng.random_range(..self.number_of_nodes),
+                rng.random_range(..self.number_of_nodes),
+            );
+        }
+
         graph
     }
 }
 
 #[macroquad::main(default_window_conf)]
 async fn main() {
-    let mut graph = Graph::new();
-
-    graph.add_node("Albania".to_string());
-    graph.add_node("Cambodia".to_string());
-    graph.add_node("Cameroon".to_string());
-    graph.add_node("Nigeria".to_string());
-
-    graph.add_edge_by_name("Cambodia", "Albania");
-    graph.add_edge_by_name("Cameroon", "Nigeria");
-    graph.add_edge_by_name("Nigeria", "Albania");
+    let graph = Simulator::new().graph();
 
     render_graph(graph).await;
 }
