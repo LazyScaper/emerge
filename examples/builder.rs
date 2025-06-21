@@ -25,7 +25,7 @@ pub struct CountryData {
 pub fn country_chain_finder() {
     print!("Running country name chain finder");
 
-    let file = File::open(Path::new("src/resources/countries.csv"));
+    let file = File::open(Path::new("resources/countries.csv"));
 
     let file = match file {
         Ok(file) => file,
@@ -60,3 +60,5 @@ pub fn country_chain_finder() {
         println!("{:?}", starting_candidate);
     }
 }
+
+fn main() {}
