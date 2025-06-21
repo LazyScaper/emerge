@@ -25,13 +25,13 @@ pub fn render(world: &mut World) {
     let node_data: HashMap<usize, Position> = world
         .query::<(&Position, &usize)>()
         .iter()
-        .map(|(e, (pos, &node_id))| (node_id, pos.clone()))
+        .map(|(_, (pos, &node_id))| (node_id, pos.clone()))
         .collect();
 
     let edge_data: HashMap<usize, Edge> = world
-        .query::<(&Edge)>()
+        .query::<&Edge>()
         .iter()
-        .map(|(e, edge)| (edge.source_node_id, edge.clone()))
+        .map(|(_, edge)| (edge.source_node_id, edge.clone()))
         .collect();
 
     for (_, edge) in edge_data {

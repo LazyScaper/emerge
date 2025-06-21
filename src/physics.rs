@@ -14,9 +14,9 @@ pub fn physics_update(world: &mut World) {
         .collect();
 
     let edge_data: HashMap<usize, Edge> = world
-        .query::<(&Edge)>()
+        .query::<&Edge>()
         .iter()
-        .map(|(e, edge)| (edge.source_node_id, edge.clone()))
+        .map(|(_, edge)| (edge.source_node_id, edge.clone()))
         .collect();
 
     for (_, edge) in edge_data {
