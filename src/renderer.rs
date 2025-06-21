@@ -1,4 +1,4 @@
-use crate::graph::{Edge, Mass, NodeId, Position, Size};
+use crate::graph::{Edge, Mass, Position, Size};
 use hecs::{With, World};
 use macroquad::color::{Color, BLACK, RED, WHITE};
 use macroquad::math::Vec2;
@@ -25,9 +25,9 @@ pub fn render(world: &mut World) {
     }
 
     let node_data: HashMap<usize, Position> = world
-        .query::<(&Position, &NodeId)>()
+        .query::<(&Position, &usize)>()
         .iter()
-        .map(|(e, (pos, node_id))| (node_id.id, pos.clone()))
+        .map(|(e, (pos, &node_id))| (node_id, pos.clone()))
         .collect();
 
     let edge_data: HashMap<usize, Edge> = world

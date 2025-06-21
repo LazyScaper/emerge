@@ -1,4 +1,4 @@
-use crate::graph::{Edge, Force, Mass, NodeId, Position, Velocity};
+use crate::graph::{Edge, Force, Mass, Position, Velocity};
 use hecs::World;
 use std::collections::HashMap;
 
@@ -8,9 +8,9 @@ const SPRING_RESTING_LENGTH: f32 = 100f32;
 
 pub fn physics_update(world: &mut World) {
     let node_data: HashMap<usize, Position> = world
-        .query::<(&Position, &NodeId)>()
+        .query::<(&Position, &usize)>()
         .iter()
-        .map(|(e, (pos, node_id))| (node_id.id, pos.clone()))
+        .map(|(_, (pos, &node_id))| (node_id, pos.clone()))
         .collect();
 
     let edge_data: HashMap<usize, Edge> = world
@@ -60,9 +60,9 @@ pub fn physics_update(world: &mut World) {
 
 fn apply_force_to_node(world: &mut World, node_id_to_match: usize, nodes: Force) {
     match world
-        .query::<(&mut Force, &NodeId)>()
+        .query::<(&mut Force, &usize)>()
         .iter()
-        .find(|(_entity, (_force, node_id))| node_id_to_match == node_id.id)
+        .find(|(_entity, (_force, &node_id))| node_id_to_match == node_id)
     {
         Some((_found_node, (force, _node_id))) => {
             *force = nodes;

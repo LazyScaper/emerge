@@ -36,13 +36,8 @@ pub struct Size {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct NodeId {
-    pub(crate) id: usize,
-}
-
-#[derive(Debug, Deserialize)]
 pub struct Node {
-    pub(crate) id: NodeId,
+    pub(crate) id: usize,
     pub(crate) label: String,
     pub(crate) physics_data: PhysicsData,
     pub(crate) outgoing_edges: HashSet<usize>,
@@ -100,7 +95,7 @@ impl Graph {
 
         self.node_lookup.insert(name, id);
         self.nodes.push(Node {
-            id: NodeId { id },
+            id,
             label,
             physics_data: PhysicsData::init(),
             outgoing_edges: HashSet::new(),
@@ -135,7 +130,7 @@ impl Graph {
         for source_node in self.nodes.iter() {
             for &destination_node_id in &source_node.outgoing_edges {
                 edges.push(Edge {
-                    source_node_id: source_node.id.id,
+                    source_node_id: source_node.id,
                     destination_node_id,
                 });
             }
