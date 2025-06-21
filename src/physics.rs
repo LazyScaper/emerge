@@ -31,7 +31,7 @@ pub fn physics_update(world: &mut World) {
                 node_data.get(&edge_destination_node_id),
             ) {
                 (Some(source_node_position), Some(destination_node_position)) => {
-                    let force_between_nodes = calculate_forces_between_nodes(
+                    let force_between_nodes = calculate_spring_forces_between_nodes(
                         destination_node_position,
                         source_node_position,
                     );
@@ -73,7 +73,7 @@ fn apply_force_to_node(world: &mut World, node_id_to_match: usize, nodes: Force)
     }
 }
 
-fn calculate_forces_between_nodes(
+fn calculate_spring_forces_between_nodes(
     source_node_position: &Position,
     destination_node_position: &Position,
 ) -> Force {
@@ -95,5 +95,28 @@ pub fn simulate_time_step(world: &mut World) {
     {
         position.x += velocity.x * TIME_STEP + 0.5 * force.x * TIME_STEP.powi(2);
         position.y += velocity.y * TIME_STEP + 0.5 * force.y * TIME_STEP.powi(2);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    macro_rules! spring_forces_tests {
+        ($($name:ident: $value:expr,)*) => {
+    $(
+        #[test]
+        fn $name() {
+            let (first_position, second_position, expected_force) = $value;
+            assert_eq!(expected_force.x, calculate_spring_forces_between_nodes(&first_position, &second_position).x);
+            assert_eq!(expected_force.y, calculate_spring_forces_between_nodes(&first_position, &second_position).y);
+        }
+    )*
+    }}
+
+    spring_forces_tests! {
+            spring_forces_1: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 0.0 }, Force{ x: -100.0, y: 0.0}),
+            spring_forces_2: (Position { x: 0.0, y: 300.0 }, Position { x: 0.0, y: 0.0 }, Force{ x: 0.0, y: 100.0}),
+            spring_forces_3: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 300.0 }, Force{ x: -114.64466, y: -114.64466}),
     }
 }
