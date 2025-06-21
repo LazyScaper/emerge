@@ -5,6 +5,7 @@ use std::collections::HashMap;
 const TIME_STEP: f32 = 0.5f32;
 const SPRING_CONSTANT: f32 = 0.5f32;
 const SPRING_RESTING_LENGTH: f32 = 100f32;
+const ELECTROSTATIC_CONSTANT: f32 = 100f32;
 
 pub fn physics_update(world: &mut World) {
     let node_data: HashMap<usize, Position> = world
@@ -31,7 +32,7 @@ pub fn physics_update(world: &mut World) {
                 node_data.get(&edge_destination_node_id),
             ) {
                 (Some(source_node_position), Some(destination_node_position)) => {
-                    let force_between_nodes = calculate_spring_forces_between_nodes(
+                    let attractive_force_between_nodes = calculate_spring_forces_between_nodes(
                         destination_node_position,
                         source_node_position,
                     );
@@ -39,16 +40,16 @@ pub fn physics_update(world: &mut World) {
                         world,
                         edge_source_node_id,
                         Force {
-                            x: force_between_nodes.x,
-                            y: force_between_nodes.y,
+                            x: attractive_force_between_nodes.x,
+                            y: attractive_force_between_nodes.y,
                         },
                     );
                     apply_force_to_node(
                         world,
                         edge_destination_node_id,
                         Force {
-                            x: -force_between_nodes.x,
-                            y: -force_between_nodes.y,
+                            x: -attractive_force_between_nodes.x,
+                            y: -attractive_force_between_nodes.y,
                         },
                     );
                 }
@@ -91,6 +92,21 @@ fn calculate_spring_forces_between_nodes(
     }
 }
 
+fn calculate_electrostatic_forces_between_nodes(
+    source_node_position: &Position,
+    destination_node_position: &Position,
+) -> Force {
+    let dx = destination_node_position.x - source_node_position.x;
+    let dy = destination_node_position.y - source_node_position.y;
+
+    let distance_between_nodes = (dx * dx + dy * dy).sqrt();
+
+    Force {
+        x: ELECTROSTATIC_CONSTANT / distance_between_nodes.powi(2) * (dx / distance_between_nodes),
+        y: ELECTROSTATIC_CONSTANT / distance_between_nodes.powi(2) * (dy / distance_between_nodes),
+    }
+}
+
 fn simulate_time_step(world: &mut World) {
     for (_id, (position, velocity, force)) in
         world.query_mut::<(&mut Position, &mut Velocity, &mut Force)>()
@@ -116,9 +132,25 @@ mod tests {
     )*
     }}
 
+    macro_rules! electrostatic_forces_tests {
+        ($($name:ident: $value:expr,)*) => {
+    $(
+        #[test]
+        fn $name() {
+            let (first_position, second_position, expected_force) = $value;
+            assert_eq!(expected_force.x, calculate_electrostatic_forces_between_nodes(&first_position, &second_position).x);
+            assert_eq!(expected_force.y, calculate_electrostatic_forces_between_nodes(&first_position, &second_position).y);
+        }
+    )*
+    }}
+
     spring_forces_tests! {
             spring_forces_1: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 0.0 }, Force{ x: -100.0, y: 0.0}),
             spring_forces_2: (Position { x: 0.0, y: 300.0 }, Position { x: 0.0, y: 0.0 }, Force{ x: 0.0, y: 100.0}),
             spring_forces_3: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 300.0 }, Force{ x: -114.64466, y: -114.64466}),
+    }
+
+    electrostatic_forces_tests! {
+            electrostatic_forces_1: (Position { x: 0.0, y: 0.0 }, Position { x: 10.0, y: 0.0 }, Force{ x: 1.0, y: 0.0}),
     }
 }
