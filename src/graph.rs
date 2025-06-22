@@ -72,7 +72,7 @@ impl PhysicsData {
 
 #[derive(Debug, Deserialize)]
 pub struct Graph {
-    pub nodes: Vec<Node>,
+    pub(crate) nodes: Vec<Node>,
     pub(crate) node_lookup: HashMap<String, usize>,
 }
 
@@ -118,7 +118,7 @@ impl Graph {
         }
     }
 
-    pub fn get_all_edges(&self) -> Vec<Edge> {
+    fn get_all_edges(&self) -> Vec<Edge> {
         let mut edges = Vec::new();
 
         for source_node in self.nodes.iter() {
