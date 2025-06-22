@@ -1,12 +1,12 @@
-use crate::graph::{Edge, Position, Size};
+use crate::graph::{Position, Size};
+use crate::physics::{edge_by_id, node_positions_by_id};
 use hecs::World;
 use macroquad::color::{Color, BLACK, GRAY, WHITE};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
 use macroquad::text::{draw_text, get_text_center};
-use std::collections::HashMap;
 
-pub fn render(world: &mut World) {
+pub(crate) fn render(world: &mut World) {
     clear_background(GRAY);
 
     for (_id, (position, size, label)) in &mut world.query::<(&mut Position, &Size, &String)>() {
@@ -22,17 +22,8 @@ pub fn render(world: &mut World) {
         );
     }
 
-    let node_data: HashMap<usize, Position> = world
-        .query::<(&Position, &usize)>()
-        .iter()
-        .map(|(_, (pos, &node_id))| (node_id, pos.clone()))
-        .collect();
-
-    let edge_data: HashMap<usize, Edge> = world
-        .query::<&Edge>()
-        .iter()
-        .map(|(_, edge)| (edge.source_node_id, edge.clone()))
-        .collect();
+    let node_data = node_positions_by_id(world);
+    let edge_data = edge_by_id(world);
 
     for (_, edge) in edge_data {
         let edge_source_node_id = edge.source_node_id;

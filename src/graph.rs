@@ -9,30 +9,30 @@ use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Deserialize)]
-pub struct Velocity {
+pub(crate) struct Velocity {
     pub(crate) x: f32,
     pub(crate) y: f32,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Force {
+pub(crate) struct Force {
     pub(crate) x: f32,
     pub(crate) y: f32,
 }
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct Position {
+pub(crate) struct Position {
     pub(crate) x: f32,
     pub(crate) y: f32,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Size {
+pub(crate) struct Size {
     pub(crate) radius: f32,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Node {
+pub(crate) struct Node {
     pub(crate) id: usize,
     pub(crate) label: String,
     pub(crate) physics_data: PhysicsData,
@@ -41,13 +41,13 @@ pub struct Node {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-pub struct Edge {
+pub(crate) struct Edge {
     pub(crate) source_node_id: usize,
     pub(crate) destination_node_id: usize,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct PhysicsData {
+pub(crate) struct PhysicsData {
     pub(crate) velocity: Velocity,
     pub(crate) force: Force,
     pub(crate) position: Position,

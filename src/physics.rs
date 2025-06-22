@@ -2,23 +2,68 @@ use crate::graph::{Edge, Force, Position, Velocity};
 use hecs::World;
 use std::collections::HashMap;
 
-const TIME_STEP: f32 = 0.5f32;
-const SPRING_CONSTANT: f32 = 0.5f32;
+const TIME_STEP: f32 = 0.1f32;
+const SPRING_CONSTANT: f32 = 1f32;
 const SPRING_RESTING_LENGTH: f32 = 100f32;
-const ELECTROSTATIC_CONSTANT: f32 = 100f32;
+const ELECTROSTATIC_CONSTANT: f32 = 10000f32;
 
 pub fn physics_update(world: &mut World) {
-    let node_data: HashMap<usize, Position> = world
-        .query::<(&Position, &usize)>()
-        .iter()
-        .map(|(_, (pos, &node_id))| (node_id, pos.clone()))
-        .collect();
+    let node_data = node_positions_by_id(world);
 
-    let edge_data: HashMap<usize, Edge> = world
-        .query::<&Edge>()
-        .iter()
-        .map(|(_, edge)| (edge.source_node_id, edge.clone()))
-        .collect();
+    apply_attractive_forces(world, &node_data);
+
+    apply_repulsive_forces(world, &node_data);
+
+    simulate_time_step(world);
+
+    clear_all_forces(world)
+}
+
+fn apply_repulsive_forces(world: &mut World, node_data: &HashMap<usize, Position>) {
+    for (&first_node_id, first_node_position) in node_data {
+        for (&second_node_id, second_node_position) in node_data {
+            if first_node_id != second_node_id
+                && is_in_range(first_node_position, second_node_position)
+            {
+                let force = calculate_electrostatic_forces_between_nodes(
+                    &first_node_position,
+                    &second_node_position,
+                );
+                apply_force_to_node(
+                    world,
+                    first_node_id,
+                    Force {
+                        x: -force.x,
+                        y: -force.y,
+                    },
+                );
+            }
+        }
+    }
+}
+
+fn clear_all_forces(world: &mut World) {
+    let node_data: HashMap<usize, Position> = node_positions_by_id(world);
+
+    for (&id, _) in &node_data {
+        match world
+            .query::<(&mut Force, &usize)>()
+            .iter()
+            .find(|(_entity, (_force, &node_id))| id == node_id)
+        {
+            Some((_found_node, (force, _node_id))) => {
+                force.x = 0.0;
+                force.y = 0.0;
+            }
+            _ => {
+                panic!("Could not find the node to apply a force to, this really should not happen")
+            }
+        }
+    }
+}
+
+fn apply_attractive_forces(world: &mut World, node_data: &HashMap<usize, Position>) {
+    let edge_data = edge_by_id(world);
 
     for (_, edge) in edge_data {
         let edge_source_node_id = edge.source_node_id;
@@ -36,6 +81,7 @@ pub fn physics_update(world: &mut World) {
                         destination_node_position,
                         source_node_position,
                     );
+
                     apply_force_to_node(
                         world,
                         edge_source_node_id,
@@ -57,18 +103,17 @@ pub fn physics_update(world: &mut World) {
             }
         };
     }
-
-    simulate_time_step(world);
 }
 
-fn apply_force_to_node(world: &mut World, node_id_to_match: usize, nodes: Force) {
+fn apply_force_to_node(world: &mut World, node_id_to_match: usize, force_to_apply: Force) {
     match world
         .query::<(&mut Force, &usize)>()
         .iter()
         .find(|(_entity, (_force, &node_id))| node_id_to_match == node_id)
     {
         Some((_found_node, (force, _node_id))) => {
-            *force = nodes;
+            force.x += force_to_apply.x;
+            force.y += force_to_apply.y;
         }
         _ => {
             panic!("Could not find the node to apply a force to, this really should not happen")
@@ -114,6 +159,26 @@ fn simulate_time_step(world: &mut World) {
         position.x += velocity.x * TIME_STEP + 0.5 * force.x * TIME_STEP.powi(2);
         position.y += velocity.y * TIME_STEP + 0.5 * force.y * TIME_STEP.powi(2);
     }
+}
+
+pub(crate) fn node_positions_by_id(world: &mut World) -> HashMap<usize, Position> {
+    world
+        .query::<(&Position, &usize)>()
+        .iter()
+        .map(|(_, (pos, &node_id))| (node_id, pos.clone()))
+        .collect()
+}
+
+pub(crate) fn edge_by_id(world: &mut World) -> HashMap<usize, Edge> {
+    world
+        .query::<&Edge>()
+        .iter()
+        .map(|(_, edge)| (edge.source_node_id, edge.clone()))
+        .collect()
+}
+
+fn is_in_range(p0: &Position, p1: &Position) -> bool {
+    ((p0.x - p1.x).powi(2) + (p0.y - p1.y).powi(2)).sqrt() < 100.0
 }
 
 #[cfg(test)]
