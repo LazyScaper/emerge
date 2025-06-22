@@ -17,8 +17,8 @@ impl Simulator {
     fn graph(&mut self) -> Graph {
         let mut rng = random::rng();
 
-        self.number_of_edges = rng.random_range(1..20);
-        self.number_of_nodes = rng.random_range(1..20);
+        self.number_of_edges = rng.random_range(1..300);
+        self.number_of_nodes = rng.random_range(1..50);
 
         let mut graph = Graph::new();
 

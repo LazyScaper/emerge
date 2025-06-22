@@ -2,11 +2,12 @@ use crate::physics::physics_update;
 use crate::renderer::render;
 use hecs::World;
 use macroquad::color::BLACK;
+use macroquad::prelude::next_frame;
 use macroquad::prelude::Conf;
-use macroquad::prelude::{next_frame, screen_height, screen_width};
-use random::Rng;
+use macroquad::window::{screen_height, screen_width};
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
+use std::f32::consts::PI;
 
 #[derive(Debug, Deserialize)]
 pub(crate) struct Velocity {
@@ -50,7 +51,6 @@ pub(crate) struct Edge {
 pub(crate) struct PhysicsData {
     pub(crate) velocity: Velocity,
     pub(crate) force: Force,
-    pub(crate) position: Position,
     pub(crate) size: Size,
 }
 
@@ -61,10 +61,6 @@ impl PhysicsData {
         Self {
             velocity: Velocity { x: 0.0, y: 0.0 },
             force: Force { x: 0.0, y: 0.0 },
-            position: Position {
-                x: rng.random_range(0.0..screen_width()),
-                y: rng.random_range(0.0..screen_height()),
-            },
             size: Size { radius: 15.0 },
         }
     }
@@ -148,12 +144,18 @@ pub async fn render_graph(graph: Graph) {
     let mut world = World::new();
 
     let all_edges = graph.get_all_edges();
-    for node in graph.nodes {
+    let node_count = graph.nodes.len();
+
+    for (index, node) in graph.nodes.into_iter().enumerate() {
+        let angle = 2.0 * PI * index as f32 / node_count as f32;
+        let x = screen_width() / 2.0 + 600.0 * angle.cos();
+        let y = screen_height() / 2.0 + 300.0 * angle.sin();
+
         let renderable_node = (
             node.id,
             node.physics_data.velocity,
             node.physics_data.force,
-            node.physics_data.position,
+            Position { x, y },
             node.physics_data.size,
             node.label,
             BLACK,
