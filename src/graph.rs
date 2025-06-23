@@ -1,5 +1,6 @@
 use crate::physics::physics_update;
-use crate::renderer::render;
+use crate::renderer;
+use crate::renderer::{render, ScrollableView};
 use hecs::World;
 use macroquad::color::BLACK;
 use macroquad::prelude::next_frame;
@@ -56,8 +57,6 @@ pub(crate) struct PhysicsData {
 
 impl PhysicsData {
     pub fn init() -> Self {
-        let mut rng = random::rng();
-
         Self {
             velocity: Velocity { x: 0.0, y: 0.0 },
             force: Force { x: 0.0, y: 0.0 },
@@ -141,7 +140,24 @@ pub fn default_window_conf() -> Conf {
 }
 
 pub async fn render_graph(graph: Graph) {
+    let mut world = spawn_initial(graph);
+
+    loop {
+        render(&mut world);
+
+        physics_update(&mut world);
+
+        renderer::view_port_update(&mut world);
+
+        next_frame().await
+    }
+}
+
+fn spawn_initial(graph: Graph) -> World {
     let mut world = World::new();
+    let view = ScrollableView::new();
+
+    world.spawn((view,));
 
     let all_edges = graph.get_all_edges();
     let node_count = graph.nodes.len();
@@ -167,14 +183,5 @@ pub async fn render_graph(graph: Graph) {
     for edge in all_edges {
         world.spawn((edge,));
     }
-
-    loop {
-        render(&mut world);
-
-        // physics calc, update forces
-        // plug into equations of motion to calc velocity
-        physics_update(&mut world);
-
-        next_frame().await
-    }
+    world
 }

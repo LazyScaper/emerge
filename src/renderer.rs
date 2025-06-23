@@ -2,26 +2,47 @@ use crate::graph::{Position, Size};
 use crate::physics::{edge_by_id, node_positions_by_id};
 use hecs::World;
 use macroquad::color::{Color, BLACK, GRAY, WHITE};
+use macroquad::input::{is_mouse_button_down, mouse_delta_position};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
 use macroquad::text::{draw_text, get_text_center};
 
+pub struct ScrollableView {
+    pub offset: Vec2,
+}
+
+impl ScrollableView {
+    pub fn new() -> Self {
+        Self {
+            offset: Vec2::new(0.0, 0.0),
+        }
+    }
+
+    pub fn world_pos_to_screen_pos(&self, world_pos: &Position) -> Position {
+        Position {
+            x: world_pos.x - self.offset.x,
+            y: world_pos.y - self.offset.y,
+        }
+    }
+
+    pub fn update(&mut self) {
+        if is_mouse_button_down(macroquad::input::MouseButton::Left) {
+            let mouse_delta = mouse_delta_position();
+
+            self.offset.x += mouse_delta.x * 1000.0;
+            self.offset.y += mouse_delta.y * 1000.0;
+        }
+    }
+}
+
 pub(crate) fn render(world: &mut World) {
     clear_background(GRAY);
 
-    for (_id, (position, size, label)) in &mut world.query::<(&mut Position, &Size, &String)>() {
-        draw_circle(position.x, position.y, size.radius, BLACK);
-        let label = &label;
-        let center_of_text = get_text_center(label, None, 20, 1.0, 0.0);
-        draw_text(
-            label,
-            position.x - center_of_text.x,
-            position.y - center_of_text.y / 2.0,
-            20.0,
-            WHITE,
-        );
-    }
+    render_nodes(&world);
+    render_edges(world);
+}
 
+fn render_edges(world: &mut World) {
     let node_data = node_positions_by_id(world);
     let edge_data = edge_by_id(world);
 
@@ -34,6 +55,11 @@ pub(crate) fn render(world: &mut World) {
         {
             if let Some(source_node_position) = node_data.get(&edge_source_node_id) {
                 if let Some(destination_node_position) = node_data.get(&edge_destination_node_id) {
+                    let source_node_position =
+                        world_to_screen_position(world, source_node_position);
+                    let destination_node_position =
+                        world_to_screen_position(world, destination_node_position);
+
                     draw_arrow_line(
                         Vec2 {
                             x: source_node_position.x,
@@ -52,6 +78,50 @@ pub(crate) fn render(world: &mut World) {
             }
         };
     }
+}
+
+fn render_nodes(world: &&mut World) {
+    for (_id, (position, size, label)) in &mut world.query::<(&Position, &Size, &String)>() {
+        let label = &label;
+        let center_of_text = get_text_center(label, None, 20, 1.0, 0.0);
+
+        let mut scrollable_view_query = world.query::<&ScrollableView>();
+        let (_, scrollable_view) = scrollable_view_query
+            .iter()
+            .next()
+            .expect("No scrollable view found");
+        let position = scrollable_view.world_pos_to_screen_pos(position);
+
+        draw_circle(position.x, position.y, size.radius, BLACK);
+        draw_text(
+            label,
+            position.x - center_of_text.x,
+            position.y - center_of_text.y / 2.0,
+            20.0,
+            WHITE,
+        );
+    }
+}
+
+pub(crate) fn view_port_update(world: &mut World) {
+    let mut scrollable_view_query = world.query::<&mut ScrollableView>();
+
+    match scrollable_view_query.iter().last() {
+        None => {}
+        Some((_e, scrollable_view)) => {
+            scrollable_view.update();
+        }
+    }
+}
+
+fn world_to_screen_position(world: &mut World, source_node_position: &Position) -> Position {
+    let mut scrollable_view_query = world.query::<&ScrollableView>();
+    let (_, scrollable_view) = scrollable_view_query
+        .iter()
+        .next()
+        .expect("No scrollable view found");
+    let source_node_position = scrollable_view.world_pos_to_screen_pos(source_node_position);
+    source_node_position
 }
 
 fn render_arrow(
