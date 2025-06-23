@@ -211,15 +211,14 @@ mod tests {
 
     #[test]
     fn should_calculate_arrow_positions() {
-        let (start_pos, end_pos, start_node_radius, end_node_radius) =
-            (Vec2 { x: 0.0, y: 0.0 }, Vec2 { x: 100.0, y: 0.0 }, 2.0, 2.0);
+        let (start_pos, end_pos) = (Vec2 { x: 0.0, y: 0.0 }, Vec2 { x: 100.0, y: 0.0 });
 
         let (arrow_start_pos, arrow_end_pos, arrowhead_left_end_pos, arrowhead_right_end_pos) =
             calculate_arrow_positions(start_pos, end_pos);
 
-        assert_eq!(arrow_start_pos, Vec2 { x: 2.0, y: 0.0 });
-        assert_eq!(arrow_end_pos, Vec2 { x: 98.0, y: 0.0 });
-        assert_eq!(arrowhead_left_end_pos, Vec2 { x: 83.0, y: -7.5 });
-        assert_eq!(arrowhead_right_end_pos, Vec2 { x: 83.0, y: 7.5 });
+        assert_eq!(arrow_start_pos, Vec2 { x: 15.0, y: 0.0 });
+        assert_eq!(arrow_end_pos, Vec2 { x: 85.0, y: 0.0 });
+        assert_eq!(arrowhead_left_end_pos, Vec2 { x: 70.0, y: -7.5 });
+        assert_eq!(arrowhead_right_end_pos, Vec2 { x: 70.0, y: 7.5 });
     }
 }

@@ -210,12 +210,12 @@ mod tests {
     }}
 
     spring_forces_tests! {
-            spring_forces_1: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 0.0 }, Force{ x: -100.0, y: 0.0}),
-            spring_forces_2: (Position { x: 0.0, y: 300.0 }, Position { x: 0.0, y: 0.0 }, Force{ x: 0.0, y: 100.0}),
-            spring_forces_3: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 300.0 }, Force{ x: -114.64466, y: -114.64466}),
+            spring_forces_1: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 0.0 }, Force{ x: -200.0, y: 0.0}),
+            spring_forces_2: (Position { x: 0.0, y: 300.0 }, Position { x: 0.0, y: 0.0 }, Force{ x: 0.0, y: 200.0}),
+            spring_forces_3: (Position { x: 0.0, y: 0.0 }, Position { x: 300.0, y: 300.0 }, Force{ x: -229.28932, y: -229.28932}),
     }
 
     electrostatic_forces_tests! {
-            electrostatic_forces_1: (Position { x: 0.0, y: 0.0 }, Position { x: 10.0, y: 0.0 }, Force{ x: 1.0, y: 0.0}),
+            electrostatic_forces_1: (Position { x: 0.0, y: 0.0 }, Position { x: 10.0, y: 0.0 }, Force{ x: 200.0, y: 0.0}),
     }
 }
