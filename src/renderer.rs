@@ -1,11 +1,13 @@
 use crate::graph::{Position, Size};
 use crate::physics::{edge_by_id, node_positions_by_id};
 use hecs::World;
-use macroquad::color::{Color, BLACK, GRAY, WHITE};
+use macroquad::color::{Color, BLACK, DARKGRAY, RED, WHITE};
 use macroquad::input::{is_mouse_button_down, mouse_delta_position};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
 use macroquad::text::{draw_text, get_text_center};
+
+const NODE_SIZE: f32 = 15.0;
 
 pub struct ScrollableView {
     pub offset: Vec2,
@@ -36,10 +38,10 @@ impl ScrollableView {
 }
 
 pub(crate) fn render(world: &mut World) {
-    clear_background(GRAY);
+    clear_background(DARKGRAY);
 
-    render_nodes(&world);
     render_edges(world);
+    render_nodes(&world);
 }
 
 fn render_edges(world: &mut World) {
@@ -53,8 +55,11 @@ fn render_edges(world: &mut World) {
         if node_data.contains_key(&edge_source_node_id)
             && node_data.contains_key(&edge_destination_node_id)
         {
-            if let Some(source_node_position) = node_data.get(&edge_source_node_id) {
-                if let Some(destination_node_position) = node_data.get(&edge_destination_node_id) {
+            match (
+                node_data.get(&edge_source_node_id),
+                node_data.get(&edge_destination_node_id),
+            ) {
+                (Some(source_node_position), Some(destination_node_position)) => {
                     let source_node_position =
                         world_to_screen_position(world, source_node_position);
                     let destination_node_position =
@@ -69,12 +74,11 @@ fn render_edges(world: &mut World) {
                             x: destination_node_position.x,
                             y: destination_node_position.y,
                         },
-                        15.0,
-                        15.0,
-                        WHITE,
+                        RED,
                         3.0,
                     )
                 }
+                _ => {}
             }
         };
     }
@@ -161,18 +165,13 @@ fn render_arrow(
     );
 }
 
-fn calculate_arrow_positions(
-    start_pos: Vec2,
-    end_pos: Vec2,
-    start_node_radius: f32,
-    end_node_radius: f32,
-) -> (Vec2, Vec2, Vec2, Vec2) {
+fn calculate_arrow_positions(start_pos: Vec2, end_pos: Vec2) -> (Vec2, Vec2, Vec2, Vec2) {
     // Calculate direction vector
     let direction = (end_pos - start_pos).normalize();
 
     // Calculate arrow start and end points (edge of circles)
-    let arrow_start_pos = start_pos + direction * start_node_radius;
-    let arrow_end_pos = end_pos - direction * end_node_radius;
+    let arrow_start_pos = start_pos + direction * NODE_SIZE;
+    let arrow_end_pos = end_pos - direction * NODE_SIZE;
 
     // Draw arrowhead
     let arrowhead_size = 15.0;
@@ -192,16 +191,9 @@ fn calculate_arrow_positions(
     )
 }
 
-fn draw_arrow_line(
-    start_pos: Vec2,
-    end_pos: Vec2,
-    start_radius: f32,
-    end_radius: f32,
-    color: Color,
-    thickness: f32,
-) {
+fn draw_arrow_line(start_pos: Vec2, end_pos: Vec2, color: Color, thickness: f32) {
     let (arrow_start_pos, arrow_end_pos, arrowhead_left_end_pos, arrowhead_right_end_pos) =
-        calculate_arrow_positions(start_pos, end_pos, start_radius, end_radius);
+        calculate_arrow_positions(start_pos, end_pos);
 
     render_arrow(
         color,
@@ -223,7 +215,7 @@ mod tests {
             (Vec2 { x: 0.0, y: 0.0 }, Vec2 { x: 100.0, y: 0.0 }, 2.0, 2.0);
 
         let (arrow_start_pos, arrow_end_pos, arrowhead_left_end_pos, arrowhead_right_end_pos) =
-            calculate_arrow_positions(start_pos, end_pos, start_node_radius, end_node_radius);
+            calculate_arrow_positions(start_pos, end_pos);
 
         assert_eq!(arrow_start_pos, Vec2 { x: 2.0, y: 0.0 });
         assert_eq!(arrow_end_pos, Vec2 { x: 98.0, y: 0.0 });

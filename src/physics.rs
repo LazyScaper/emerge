@@ -5,7 +5,7 @@ use std::collections::HashMap;
 const TIME_STEP: f32 = 0.1f32;
 const SPRING_CONSTANT: f32 = 1f32;
 const SPRING_RESTING_LENGTH: f32 = 100f32;
-const ELECTROSTATIC_CONSTANT: f32 = 10000f32;
+const ELECTROSTATIC_CONSTANT: f32 = 20000f32;
 
 pub fn physics_update(world: &mut World) {
     let node_data = node_positions_by_id(world);
