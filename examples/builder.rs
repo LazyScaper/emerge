@@ -1,5 +1,7 @@
 use csv::ReaderBuilder;
+use emerge::graph::{default_window_conf, render_graph, Graph};
 use serde::Deserialize;
+use std::collections::HashSet;
 use std::fs::File;
 use std::path::Path;
 
@@ -22,10 +24,10 @@ pub struct CountryData {
     last_letter: char,
 }
 
-pub fn country_chain_finder() {
+pub fn country_chain_finder() -> Graph {
     print!("Running country name chain finder");
 
-    let file = File::open(Path::new("resources/countries.csv"));
+    let file = File::open(Path::new("examples/resources/countries.csv"));
 
     let file = match file {
         Ok(file) => file,
@@ -54,11 +56,37 @@ pub fn country_chain_finder() {
         // starting_candidates.clo
     }
 
-    for starting_candidate in starting_candidates {
-        println!("Starting candidate {:?}", starting_candidate.name);
+    let mut graph = Graph::new();
+    let mut used_names = HashSet::new();
 
-        println!("{:?}", starting_candidate);
+    for country_i in starting_candidates.iter() {
+        for country_j in starting_candidates.iter() {
+            if country_i.first_letter.to_ascii_lowercase()
+                == country_j.last_letter.to_ascii_lowercase()
+            {
+                let country_1_name = &country_i.name;
+                let country_2_name = &country_j.name;
+                graph.add_edge_by_name(country_2_name, country_1_name);
+
+                if !used_names.contains(&country_i.name) {
+                    graph.add_node(country_1_name.clone());
+                }
+
+                if !used_names.contains(&country_j.name) {
+                    graph.add_node(country_2_name.clone());
+                }
+
+                used_names.insert(country_1_name.clone());
+                used_names.insert(country_2_name.clone());
+            }
+        }
     }
+
+    graph
 }
 
-fn main() {}
+#[macroquad::main(default_window_conf)]
+async fn main() {
+    let graph = country_chain_finder();
+    render_graph(graph).await;
+}
