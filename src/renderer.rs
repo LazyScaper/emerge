@@ -44,6 +44,17 @@ pub(crate) fn render(world: &mut World) {
     render_nodes(&world);
 }
 
+pub(crate) fn view_port_update(world: &mut World) {
+    let mut scrollable_view_query = world.query::<&mut ScrollableView>();
+
+    match scrollable_view_query.iter().last() {
+        None => {}
+        Some((_e, scrollable_view)) => {
+            scrollable_view.update();
+        }
+    }
+}
+
 fn render_edges(world: &mut World) {
     let node_data = node_positions_by_id(world);
     let edge_data = edge_by_id(world);
@@ -104,17 +115,6 @@ fn render_nodes(world: &&mut World) {
             20.0,
             WHITE,
         );
-    }
-}
-
-pub(crate) fn view_port_update(world: &mut World) {
-    let mut scrollable_view_query = world.query::<&mut ScrollableView>();
-
-    match scrollable_view_query.iter().last() {
-        None => {}
-        Some((_e, scrollable_view)) => {
-            scrollable_view.update();
-        }
     }
 }
 

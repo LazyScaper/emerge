@@ -181,5 +181,6 @@ fn spawn_initial(graph: Graph) -> World {
     for edge in all_edges {
         world.spawn((edge,));
     }
+
     world
 }
