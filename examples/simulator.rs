@@ -23,13 +23,13 @@ impl Simulator {
         let mut graph = Graph::new();
 
         for node_id in 0..self.number_of_nodes {
-            graph.add_node("node".to_string() + node_id.to_string().as_str());
+            graph.add_node(&format!("node{}", node_id));
         }
 
         for _ in 0..self.number_of_edges {
-            graph.add_edge(
-                rng.random_range(..self.number_of_nodes),
-                rng.random_range(..self.number_of_nodes),
+            graph.add_directed_edge(
+                &format!("node{}", rng.random_range(0..self.number_of_nodes)),
+                &format!("node{}", rng.random_range(0..self.number_of_nodes)),
             );
         }
 

@@ -78,28 +78,20 @@ impl Graph {
         }
     }
 
-    pub fn add_node(&mut self, label: String) {
+    pub fn add_node(&mut self, label: &str) {
         let id = self.nodes.len();
 
-        self.node_lookup.insert(label.clone(), id);
+        self.node_lookup.insert(label.to_string(), id);
         self.nodes.push(Node {
             id,
-            label,
+            label: label.to_string(),
             physics_data: PhysicsData::init(),
             outgoing_edges: HashSet::new(),
             incoming_edges: HashSet::new(),
         });
     }
 
-    pub fn add_edge(&mut self, from: usize, to: usize) {
-        if from == to {
-            return;
-        }
-
-        self.nodes.get_mut(from).unwrap().outgoing_edges.insert(to);
-        self.nodes.get_mut(to).unwrap().incoming_edges.insert(from);
-    }
-    pub fn add_edge_by_name(&mut self, from_name: &str, to_name: &str) {
+    pub fn add_directed_edge(&mut self, from_name: &str, to_name: &str) {
         if from_name.eq(to_name) {
             return;
         }
@@ -110,6 +102,14 @@ impl Graph {
         ) {
             self.add_edge(from_id, to_id);
         }
+    }
+    fn add_edge(&mut self, from: usize, to: usize) {
+        if from == to {
+            return;
+        }
+
+        self.nodes.get_mut(from).unwrap().outgoing_edges.insert(to);
+        self.nodes.get_mut(to).unwrap().incoming_edges.insert(from);
     }
 
     fn get_all_edges(&self) -> Vec<Edge> {

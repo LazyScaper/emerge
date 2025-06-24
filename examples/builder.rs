@@ -66,14 +66,14 @@ pub fn country_chain_finder() -> Graph {
             {
                 let country_1_name = &country_i.name;
                 let country_2_name = &country_j.name;
-                graph.add_edge_by_name(country_2_name, country_1_name);
+                graph.add_directed_edge(country_2_name, country_1_name);
 
                 if !used_names.contains(&country_i.name) {
-                    graph.add_node(country_1_name.clone());
+                    graph.add_node(country_1_name);
                 }
 
                 if !used_names.contains(&country_j.name) {
-                    graph.add_node(country_2_name.clone());
+                    graph.add_node(country_2_name);
                 }
 
                 used_names.insert(country_1_name.clone());
