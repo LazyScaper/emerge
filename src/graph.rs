@@ -91,15 +91,14 @@ impl Graph {
         });
     }
 
-    pub fn add_directed_edge(&mut self, from_name: &str, to_name: &str) {
-        if from_name.eq(to_name) {
+    pub fn add_directed_edge(&mut self, from: &str, to: &str) {
+        if from.eq(to) {
             return;
         }
 
-        if let (Some(&from_id), Some(&to_id)) = (
-            self.node_lookup.get(from_name),
-            self.node_lookup.get(to_name),
-        ) {
+        if let (Some(&from_id), Some(&to_id)) =
+            (self.node_lookup.get(from), self.node_lookup.get(to))
+        {
             self.add_edge(from_id, to_id);
         }
     }
@@ -119,7 +118,7 @@ impl Graph {
             for &destination_node_id in &source_node.outgoing_edges {
                 edges.push(Edge {
                     source_node_id: source_node.id,
-                    destination_node_id,
+                    destination_node_id: destination_node_id,
                 });
             }
         }

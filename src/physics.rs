@@ -173,7 +173,8 @@ pub(crate) fn edge_by_id(world: &mut World) -> HashMap<usize, Edge> {
     world
         .query::<&Edge>()
         .iter()
-        .map(|(_, edge)| (edge.source_node_id, edge.clone()))
+        .enumerate()
+        .map(|(index, (_, edge))| (index, edge.clone()))
         .collect()
 }
 
