@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Jake Peters <jakepeters199@hotmail.com"]
 description = "A library for building and rendering force directed graphs"
-documentation = "https://docs.rs/your-graph-viz"
 homepage = "https://github.com/LazyScaper/emerge"
 repository = "https://github.com/LazyScaper/emerge"
 license = "MIT OR Apache-2.0"  # Common dual license
@@ -12,8 +11,7 @@ readme = "README.md"
 keywords = ["force", "directed", "renderer", "graph", "simulation"]
 categories = ["simulation", "graphics", "visualization", "game-development"]
 exclude = [
-    "examples/*",
-    ".github/*",
+    "examples/*"
 ]
 
 [dependencies]
