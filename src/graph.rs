@@ -6,34 +6,33 @@ use macroquad::color::BLACK;
 use macroquad::prelude::next_frame;
 use macroquad::prelude::Conf;
 use macroquad::window::{screen_height, screen_width};
-use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::f32::consts::PI;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub(crate) struct Velocity {
     pub(crate) x: f32,
     pub(crate) y: f32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub(crate) struct Force {
     pub(crate) x: f32,
     pub(crate) y: f32,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct Position {
     pub(crate) x: f32,
     pub(crate) y: f32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub(crate) struct Size {
     pub(crate) radius: f32,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub(crate) struct Node {
     pub(crate) id: usize,
     pub(crate) label: String,
@@ -42,13 +41,13 @@ pub(crate) struct Node {
     pub(crate) incoming_edges: HashSet<usize>,
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Clone)]
 pub(crate) struct Edge {
     pub(crate) source_node_id: usize,
     pub(crate) destination_node_id: usize,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub(crate) struct PhysicsData {
     pub(crate) velocity: Velocity,
     pub(crate) force: Force,
@@ -65,7 +64,7 @@ impl PhysicsData {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug)]
 pub struct Graph {
     pub(crate) nodes: Vec<Node>,
     pub(crate) node_lookup: HashMap<String, usize>,
