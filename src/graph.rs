@@ -102,6 +102,11 @@ impl Graph {
             self.add_edge(from_id, to_id);
         }
     }
+    
+    fn get_node_by_name(&self, name: &str) -> Option<&Node> {
+        self.node_lookup.get(name).and_then(|&index| self.nodes.get(index))
+    }
+    
     fn add_edge(&mut self, from: usize, to: usize) {
         if from == to {
             return;
@@ -183,4 +188,36 @@ fn spawn_initial(graph: Graph) -> World {
     }
 
     world
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn should_add_node() {
+        let mut graph = Graph::new();
+        
+        graph.add_node("A");
+        graph.add_node("B");
+        graph.add_node("C");
+        graph.add_node("D");
+        
+        assert_eq!(graph.nodes.len(), 4);
+    }
+    
+    #[test]
+    fn should_maintain_incoming_and_outgoing_edges() {
+        let mut graph = Graph::new();
+        
+        graph.add_node("A");
+        graph.add_node("B");
+        graph.add_directed_edge("A", "B");
+
+        let node_a = graph.get_node_by_name("A").unwrap();
+        let node_b = graph.get_node_by_name("B").unwrap();
+        
+        assert!(node_a.outgoing_edges.contains(&node_b.id));
+        assert!(node_b.incoming_edges.contains(&node_a.id));
+    }
 }
