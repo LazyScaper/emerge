@@ -37,14 +37,17 @@ pub(crate) struct Node {
     pub(crate) id: usize,
     pub(crate) label: String,
     pub(crate) physics_data: PhysicsData,
-    pub(crate) outgoing_edges: HashSet<usize>,
-    pub(crate) incoming_edges: HashSet<usize>,
+    pub(crate) outgoing_directed_edges: HashSet<usize>,
+    pub(crate) incoming_directed_edges: HashSet<usize>,
+    pub(crate) outgoing_undirected_edges: HashSet<usize>,
+    pub(crate) incoming_undirected_edges: HashSet<usize>,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct Edge {
     pub(crate) source_node_id: usize,
     pub(crate) destination_node_id: usize,
+    pub(crate) is_directed: bool,
 }
 
 #[derive(Debug)]
@@ -86,8 +89,10 @@ impl Graph {
             id,
             label: label.to_string(),
             physics_data: PhysicsData::init(),
-            outgoing_edges: HashSet::new(),
-            incoming_edges: HashSet::new(),
+            outgoing_directed_edges: HashSet::new(),
+            incoming_directed_edges: HashSet::new(),
+            outgoing_undirected_edges: HashSet::new(),
+            incoming_undirected_edges: HashSet::new(),
         });
     }
 
@@ -99,31 +104,65 @@ impl Graph {
         if let (Some(&from_id), Some(&to_id)) =
             (self.node_lookup.get(from), self.node_lookup.get(to))
         {
-            self.add_edge(from_id, to_id);
+            self.nodes
+                .get_mut(from_id)
+                .unwrap()
+                .outgoing_directed_edges
+                .insert(to_id);
+            self.nodes
+                .get_mut(to_id)
+                .unwrap()
+                .incoming_directed_edges
+                .insert(from_id);
         }
     }
-    
-    fn get_node_by_name(&self, name: &str) -> Option<&Node> {
-        self.node_lookup.get(name).and_then(|&index| self.nodes.get(index))
-    }
-    
-    fn add_edge(&mut self, from: usize, to: usize) {
-        if from == to {
+
+    pub fn add_undirected_edge(&mut self, from: &str, to: &str) {
+        if from.eq(to) {
             return;
         }
 
-        self.nodes.get_mut(from).unwrap().outgoing_edges.insert(to);
-        self.nodes.get_mut(to).unwrap().incoming_edges.insert(from);
+        if let (Some(&from_id), Some(&to_id)) =
+            (self.node_lookup.get(from), self.node_lookup.get(to))
+        {
+            self.nodes
+                .get_mut(from_id)
+                .unwrap()
+                .outgoing_undirected_edges
+                .insert(to_id);
+            self.nodes
+                .get_mut(to_id)
+                .unwrap()
+                .incoming_undirected_edges
+                .insert(from_id);
+        }
+    }
+
+    fn get_node_by_name(&self, name: &str) -> Option<&Node> {
+        self.node_lookup
+            .get(name)
+            .and_then(|&index| self.nodes.get(index))
     }
 
     fn get_all_edges(&self) -> Vec<Edge> {
         let mut edges = Vec::new();
 
         for source_node in self.nodes.iter() {
-            for &destination_node_id in &source_node.outgoing_edges {
+            for &destination_node_id in &source_node.outgoing_directed_edges {
                 edges.push(Edge {
                     source_node_id: source_node.id,
                     destination_node_id: destination_node_id,
+                    is_directed: true,
+                });
+            }
+        }
+
+        for source_node in self.nodes.iter() {
+            for &destination_node_id in &source_node.outgoing_undirected_edges {
+                edges.push(Edge {
+                    source_node_id: source_node.id,
+                    destination_node_id: destination_node_id,
+                    is_directed: false,
                 });
             }
         }
@@ -193,31 +232,31 @@ fn spawn_initial(graph: Graph) -> World {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn should_add_node() {
         let mut graph = Graph::new();
-        
+
         graph.add_node("A");
         graph.add_node("B");
         graph.add_node("C");
         graph.add_node("D");
-        
+
         assert_eq!(graph.nodes.len(), 4);
     }
-    
+
     #[test]
     fn should_maintain_incoming_and_outgoing_edges() {
         let mut graph = Graph::new();
-        
+
         graph.add_node("A");
         graph.add_node("B");
         graph.add_directed_edge("A", "B");
 
         let node_a = graph.get_node_by_name("A").unwrap();
         let node_b = graph.get_node_by_name("B").unwrap();
-        
-        assert!(node_a.outgoing_edges.contains(&node_b.id));
-        assert!(node_b.incoming_edges.contains(&node_a.id));
+
+        assert!(node_a.outgoing_directed_edges.contains(&node_b.id));
+        assert!(node_b.incoming_directed_edges.contains(&node_a.id));
     }
 }

@@ -87,6 +87,7 @@ fn render_edges(world: &mut World) {
                         },
                         RED,
                         3.0,
+                        edge.is_directed,
                     )
                 }
                 _ => {}
@@ -135,6 +136,7 @@ fn render_arrow(
     arrow_end: Vec2,
     arrowhead_left: Vec2,
     arrowhead_right: Vec2,
+    is_directed: bool,
 ) {
     // Draw main line
     draw_line(
@@ -145,24 +147,27 @@ fn render_arrow(
         thickness,
         color,
     );
-    // draw left side of arrow head
-    draw_line(
-        arrow_end.x,
-        arrow_end.y,
-        arrowhead_left.x,
-        arrowhead_left.y,
-        thickness,
-        color,
-    );
-    // draw right side of arrow head
-    draw_line(
-        arrow_end.x,
-        arrow_end.y,
-        arrowhead_right.x,
-        arrowhead_right.y,
-        thickness,
-        color,
-    );
+
+    if (is_directed) {
+        // draw left side of arrow head
+        draw_line(
+            arrow_end.x,
+            arrow_end.y,
+            arrowhead_left.x,
+            arrowhead_left.y,
+            thickness,
+            color,
+        );
+        // draw right side of arrow head
+        draw_line(
+            arrow_end.x,
+            arrow_end.y,
+            arrowhead_right.x,
+            arrowhead_right.y,
+            thickness,
+            color,
+        );
+    }
 }
 
 fn calculate_arrow_positions(start_pos: Vec2, end_pos: Vec2) -> (Vec2, Vec2, Vec2, Vec2) {
@@ -191,7 +196,13 @@ fn calculate_arrow_positions(start_pos: Vec2, end_pos: Vec2) -> (Vec2, Vec2, Vec
     )
 }
 
-fn draw_arrow_line(start_pos: Vec2, end_pos: Vec2, color: Color, thickness: f32) {
+fn draw_arrow_line(
+    start_pos: Vec2,
+    end_pos: Vec2,
+    color: Color,
+    thickness: f32,
+    is_directed: bool,
+) {
     let (arrow_start_pos, arrow_end_pos, arrowhead_left_end_pos, arrowhead_right_end_pos) =
         calculate_arrow_positions(start_pos, end_pos);
 
@@ -202,6 +213,7 @@ fn draw_arrow_line(start_pos: Vec2, end_pos: Vec2, color: Color, thickness: f32)
         arrow_end_pos,
         arrowhead_left_end_pos,
         arrowhead_right_end_pos,
+        is_directed,
     );
 }
 

@@ -27,7 +27,7 @@ impl Simulator {
         }
 
         for _ in 0..self.number_of_edges {
-            graph.add_directed_edge(
+            graph.add_undirected_edge(
                 &format!("{}", rng.random_range(0..self.number_of_nodes)),
                 &format!("{}", rng.random_range(0..self.number_of_nodes)),
             );
