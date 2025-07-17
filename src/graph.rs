@@ -1,4 +1,4 @@
-use crate::physics::physics_update;
+use crate::physics::{edge_by_id, node_positions_by_id, physics_update};
 use crate::renderer;
 use crate::renderer::{render, ScrollableView};
 use hecs::World;
@@ -185,9 +185,12 @@ pub async fn render_graph(graph: Graph) {
     let mut world = spawn_initial(graph);
 
     loop {
-        render(&mut world);
+        let node_data = node_positions_by_id(&mut world);
+        let edge_data = edge_by_id(&mut world);
 
-        physics_update(&mut world);
+        render(&mut world, &node_data, &edge_data);
+
+        physics_update(&mut world, &node_data);
 
         renderer::view_port_update(&mut world);
 

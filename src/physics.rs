@@ -7,16 +7,14 @@ const SPRING_CONSTANT: f32 = 1f32;
 const SPRING_RESTING_LENGTH: f32 = 100f32;
 const ELECTROSTATIC_CONSTANT: f32 = 20000f32;
 
-pub fn physics_update(world: &mut World) {
-    let node_data = node_positions_by_id(world);
+pub fn physics_update(world: &mut World, node_data: &HashMap<usize, Position>) {
+    apply_attractive_forces(world, node_data);
 
-    apply_attractive_forces(world, &node_data);
-
-    apply_repulsive_forces(world, &node_data);
+    apply_repulsive_forces(world, node_data);
 
     simulate_time_step(world);
 
-    clear_all_forces(world)
+    clear_all_forces(world, node_data)
 }
 
 fn apply_repulsive_forces(world: &mut World, node_data: &HashMap<usize, Position>) {
@@ -42,10 +40,8 @@ fn apply_repulsive_forces(world: &mut World, node_data: &HashMap<usize, Position
     }
 }
 
-fn clear_all_forces(world: &mut World) {
-    let node_data: HashMap<usize, Position> = node_positions_by_id(world);
-
-    for (&id, _) in &node_data {
+fn clear_all_forces(world: &mut World, node_data: &HashMap<usize, Position>) {
+    for (&id, _) in node_data {
         match world
             .query::<(&mut Force, &usize)>()
             .iter()

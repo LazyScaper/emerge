@@ -1,11 +1,11 @@
-use crate::graph::{Position, Size};
-use crate::physics::{edge_by_id, node_positions_by_id};
+use crate::graph::{Edge, Position, Size};
 use hecs::World;
 use macroquad::color::{Color, BLACK, DARKGRAY, RED, WHITE};
 use macroquad::input::{is_mouse_button_down, mouse_delta_position};
 use macroquad::math::Vec2;
 use macroquad::prelude::{clear_background, draw_circle, draw_line};
 use macroquad::text::{draw_text, get_text_center};
+use std::collections::HashMap;
 
 const NODE_SIZE: f32 = 15.0;
 
@@ -37,11 +37,15 @@ impl ScrollableView {
     }
 }
 
-pub(crate) fn render(world: &mut World) {
+pub(crate) fn render(
+    world: &mut World,
+    node_data: &HashMap<usize, Position>,
+    edge_data: &HashMap<usize, Edge>,
+) {
     clear_background(DARKGRAY);
 
-    render_edges(world);
-    render_nodes(&world);
+    render_edges(world, node_data, edge_data);
+    render_nodes(world);
 }
 
 pub(crate) fn view_port_update(world: &mut World) {
@@ -55,10 +59,11 @@ pub(crate) fn view_port_update(world: &mut World) {
     }
 }
 
-fn render_edges(world: &mut World) {
-    let node_data = node_positions_by_id(world);
-    let edge_data = edge_by_id(world);
-
+fn render_edges(
+    world: &mut World,
+    node_data: &HashMap<usize, Position>,
+    edge_data: &HashMap<usize, Edge>,
+) {
     for (_, edge) in edge_data {
         let edge_source_node_id = edge.source_node_id;
         let edge_destination_node_id = edge.destination_node_id;
@@ -96,7 +101,7 @@ fn render_edges(world: &mut World) {
     }
 }
 
-fn render_nodes(world: &&mut World) {
+fn render_nodes(world: &mut World) {
     for (_id, (position, size, label)) in &mut world.query::<(&Position, &Size, &String)>() {
         let label = &label;
         let center_of_text = get_text_center(label, None, 20, 1.0, 0.0);
