@@ -234,7 +234,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn should_add_node() {
+    fn should_store_correct_number_of_nodes() {
         let mut graph = Graph::new();
 
         graph.add_node("A");
@@ -246,17 +246,60 @@ mod tests {
     }
 
     #[test]
-    fn should_maintain_incoming_and_outgoing_edges() {
+    fn should_maintain_incoming_and_outgoing_edges_for_directed_graphs() {
         let mut graph = Graph::new();
 
         graph.add_node("A");
         graph.add_node("B");
+        graph.add_node("C");
         graph.add_directed_edge("A", "B");
+        graph.add_directed_edge("B", "C");
+        graph.add_directed_edge("C", "A");
+
+        let node_a = graph.get_node_by_name("A").unwrap();
+        let node_b = graph.get_node_by_name("B").unwrap();
+        let node_c = graph.get_node_by_name("C").unwrap();
+
+        assert!(node_a.outgoing_directed_edges.contains(&node_b.id));
+        assert!(node_b.incoming_directed_edges.contains(&node_a.id));
+
+        assert!(node_b.outgoing_directed_edges.contains(&node_c.id));
+        assert!(node_c.incoming_directed_edges.contains(&node_b.id));
+
+        assert!(node_c.outgoing_directed_edges.contains(&node_a.id));
+        assert!(node_a.incoming_directed_edges.contains(&node_c.id));
+    }
+
+    #[test]
+    fn should_maintain_incoming_and_outgoing_edges_for_undirected_graphs() {
+        let mut graph = Graph::new();
+
+        graph.add_node("A");
+        graph.add_node("B");
+        graph.add_undirected_edge("A", "B");
 
         let node_a = graph.get_node_by_name("A").unwrap();
         let node_b = graph.get_node_by_name("B").unwrap();
 
-        assert!(node_a.outgoing_directed_edges.contains(&node_b.id));
-        assert!(node_b.incoming_directed_edges.contains(&node_a.id));
+        assert!(node_a.outgoing_undirected_edges.contains(&node_b.id));
+        assert!(node_b.incoming_undirected_edges.contains(&node_a.id));
+
+        #[test]
+        fn should_not_be_able_to_add_self_referential_edges() {
+            let mut graph = Graph::new();
+
+            graph.add_node("A");
+            graph.add_undirected_edge("A", "A");
+            graph.add_directed_edge("A", "A");
+
+            let node_a = graph.get_node_by_name("A").unwrap();
+            let node_b = graph.get_node_by_name("B").unwrap();
+
+            assert!(node_a.outgoing_directed_edges.is_empty());
+            assert!(node_a.incoming_directed_edges.is_empty());
+
+            assert!(node_a.outgoing_undirected_edges.is_empty());
+            assert!(node_a.incoming_undirected_edges.is_empty());
+        }
     }
 }
