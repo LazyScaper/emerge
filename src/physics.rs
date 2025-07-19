@@ -7,8 +7,12 @@ const SPRING_CONSTANT: f32 = 1f32;
 const SPRING_RESTING_LENGTH: f32 = 100f32;
 const ELECTROSTATIC_CONSTANT: f32 = 20000f32;
 
-pub fn physics_update(world: &mut World, node_data: &HashMap<usize, Position>) {
-    apply_attractive_forces(world, node_data);
+pub fn physics_update(
+    world: &mut World,
+    node_data: &HashMap<usize, Position>,
+    edge_data: &HashMap<usize, Edge>,
+) {
+    apply_attractive_forces(world, node_data, edge_data);
 
     apply_repulsive_forces(world, node_data);
 
@@ -58,9 +62,11 @@ fn clear_all_forces(world: &mut World, node_data: &HashMap<usize, Position>) {
     }
 }
 
-fn apply_attractive_forces(world: &mut World, node_data: &HashMap<usize, Position>) {
-    let edge_data = edge_by_id(world);
-
+fn apply_attractive_forces(
+    world: &mut World,
+    node_data: &HashMap<usize, Position>,
+    edge_data: &HashMap<usize, Edge>,
+) {
     for (_, edge) in edge_data {
         let edge_source_node_id = edge.source_node_id;
         let edge_destination_node_id = edge.destination_node_id;

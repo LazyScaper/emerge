@@ -190,7 +190,7 @@ pub async fn render_graph(graph: Graph) {
 
         render(&mut world, &node_data, &edge_data);
 
-        physics_update(&mut world, &node_data);
+        physics_update(&mut world, &node_data, &edge_data);
 
         renderer::view_port_update(&mut world);
 
