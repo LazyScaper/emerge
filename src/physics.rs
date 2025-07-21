@@ -5,7 +5,7 @@ use std::collections::HashMap;
 const TIME_STEP: f32 = 0.1f32;
 const SPRING_CONSTANT: f32 = 1f32;
 const SPRING_RESTING_LENGTH: f32 = 100f32;
-const ELECTROSTATIC_CONSTANT: f32 = 20000f32;
+const ELECTROSTATIC_CONSTANT: f32 = 200000f32;
 
 pub fn physics_update(
     world: &mut World,
@@ -181,7 +181,7 @@ pub(crate) fn edge_by_id(world: &mut World) -> HashMap<usize, Edge> {
 }
 
 fn is_in_range(p0: &Position, p1: &Position) -> bool {
-    ((p0.x - p1.x).powi(2) + (p0.y - p1.y).powi(2)).sqrt() < 100.0
+    ((p0.x - p1.x).powi(2) + (p0.y - p1.y).powi(2)).sqrt() < 150.0
 }
 
 #[cfg(test)]

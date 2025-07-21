@@ -40,7 +40,7 @@ fn compute_factor_tree(visited_nodes: &mut Vec<i32>, value: i32, graph: &mut Gra
 
 #[macroquad::main(default_window_conf)]
 async fn main() {
-    let graph = build_factor_tree(2162160);
+    let graph = build_factor_tree(995729583 );
 
     render_graph(graph).await;
 }
